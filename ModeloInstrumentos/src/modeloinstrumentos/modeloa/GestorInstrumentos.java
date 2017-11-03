@@ -119,7 +119,7 @@ public class GestorInstrumentos
         }
         return lvValorRetorno;
     }
-
+    
     public List<Instrumento> listaInstrumentos()
     {
         List<Instrumento> lvLista = new ArrayList<>();
@@ -140,7 +140,7 @@ public class GestorInstrumentos
         }
         return lvLista;
     }
-
+    
     public Object[][] obtenerTabla()
     {
         List<Instrumento> lvInstrumentos = listaInstrumentos();
@@ -164,7 +164,7 @@ public class GestorInstrumentos
     private static final String CLAVE = "";
 
     private static final String CMD_LISTAR = "SELECT NumeroSerie, Tipo, Descripcion, Minimo, Maximo, Tolerancia FROM instrumento ORDER BY NumeroSerie;";
-    private static final String CMD_AGREGAR = "INSERT INTO instrumento VALUES (?, ?, ?, ?);";
+    private static final String CMD_AGREGAR = "INSERT INTO instrumento VALUES (?, ?, ?, ?, ?, ?);";
     private static final String CMD_RECUPERAR = "SELECT NumeroSerie, Tipo, Descripcion, Minimo, Maximo, Tolerancia FROM instrumento WHERE NumeroSerie = ?;";
     private static final String CMD_ACTUALIZAR = "UPDATE instrumento SET Tipo = ?, Descripcion = ?, Minimo = ?, Maximo = ?, Tolerancia = ? WHERE NumeroSerie = ?;";
     private static final String CMD_ELIMINAR = "DELETE FROM instrumento WHERE NumeroSerie = ?;";

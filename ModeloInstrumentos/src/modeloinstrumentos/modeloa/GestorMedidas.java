@@ -9,30 +9,30 @@ import java.util.ArrayList;
 import java.util.List;
 import modeloinstrumentos.modelo.dao.GestorBaseDatos;
 
-public class GestorTipoInstrumentos 
+public class GestorMedidas 
 {
-    public GestorTipoInstrumentos() throws InstantiationException, ClassNotFoundException, IllegalAccessException
+    public GestorMedidas() throws InstantiationException, ClassNotFoundException, IllegalAccessException
     {
         aBaseDatos = GestorBaseDatos.obtenerGestorBD( GestorBaseDatos.GBD.MYSQL_SERVER, GestorBaseDatos.SERVIDOR_POR_DEFECTO);
     }
     
-    public static GestorTipoInstrumentos obtenerInstancia() throws InstantiationException, ClassNotFoundException, IllegalAccessException 
+    public static GestorMedidas obtenerInstancia() throws InstantiationException, ClassNotFoundException, IllegalAccessException 
     {
         if (aInstancia == null) 
-            aInstancia = new GestorTipoInstrumentos();
+            aInstancia = new GestorMedidas();
         return aInstancia;
     }
 
-    public boolean agregar(TipoInstrumento nuevoTipoInstrumento)
+    public boolean agregar(Medida pNuevaMedida)
     {
         boolean lvValorRetorno = false;
         try 
         {
             try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); PreparedStatement lvPaso = lvConexion.prepareStatement(CMD_AGREGAR)) {
                 lvPaso.clearParameters();
-                lvPaso.setString(1, nuevoTipoInstrumento.obtenerCodigo());
-                lvPaso.setString(2, nuevoTipoInstrumento.obtenerNombre());
-                lvPaso.setString(3, nuevoTipoInstrumento.obtenerUnidadMedicion());
+                lvPaso.setString(1, pNuevaMedida.obtenerNumero());
+                lvPaso.setString(2, pNuevaMedida.obtenerReferencia());
+                lvPaso.setString(3, pNuevaMedida.obtenerLectura());
 
                 int r = lvPaso.executeUpdate();
                 lvValorRetorno = (r == 1);
@@ -45,20 +45,20 @@ public class GestorTipoInstrumentos
         return lvValorRetorno;
     }
 
-    public TipoInstrumento recuperar(String pCodigo)
+    public Medida recuperar(String pNumero)
     {
-        TipoInstrumento lvTipoInstrumento = null;
+        Medida lvMedida = null;
         try 
         {
             try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); PreparedStatement lvPaso = lvConexion.prepareStatement(CMD_RECUPERAR)) 
             {
                 lvPaso.clearParameters();
-                lvPaso.setString(1, pCodigo);
+                lvPaso.setString(1, pNumero);
 
                 try (ResultSet rs = lvPaso.executeQuery()) 
                 {
                     if (rs.next()) 
-                        lvTipoInstrumento = new TipoInstrumento(rs.getString("Codigo"), rs.getString("Nombre"), rs.getString("UnidadMedicion"));
+                        lvMedida = new Medida(rs.getString("Numero"), rs.getString("Referencia"), rs.getString("Lectura"));
                 }
             }
         } 
@@ -67,10 +67,10 @@ public class GestorTipoInstrumentos
             System.err.printf("Excepción: '%s'%n",
                     ex.getMessage());
         }
-        return lvTipoInstrumento;
+        return lvMedida;
     }
 
-    public boolean actualizar(TipoInstrumento pTipoInstrumento)
+    public boolean actualizar(Medida pMedida)
     {
         boolean lvValorRetorno = false;
         try 
@@ -78,9 +78,9 @@ public class GestorTipoInstrumentos
             try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); PreparedStatement lvPaso = lvConexion.prepareStatement(CMD_ACTUALIZAR))
             {
                 lvPaso.clearParameters();
-                lvPaso.setString(1, pTipoInstrumento.obtenerNombre());
-                lvPaso.setString(2, pTipoInstrumento.obtenerUnidadMedicion());
-                lvPaso.setString(3, pTipoInstrumento.obtenerCodigo());
+                lvPaso.setString(1, pMedida.obtenerReferencia());
+                lvPaso.setString(2, pMedida.obtenerLectura());
+                lvPaso.setString(3, pMedida.obtenerNumero());
 
                 int r = lvPaso.executeUpdate();
                 lvValorRetorno = (r == 1);
@@ -93,7 +93,7 @@ public class GestorTipoInstrumentos
         return lvValorRetorno;
     }
 
-    public boolean eliminar(String pCodigo)
+    public boolean eliminar(String pNumero)
     {
         boolean lvValorRetorno = false;
         try 
@@ -101,7 +101,7 @@ public class GestorTipoInstrumentos
             try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); PreparedStatement lvPaso = lvConexion.prepareStatement(CMD_ELIMINAR))
             {
                 lvPaso.clearParameters();
-                lvPaso.setString(1, pCodigo);
+                lvPaso.setString(1, pNumero);
 
                 int r = lvPaso.executeUpdate();
                 lvValorRetorno = (r == 1);
@@ -113,10 +113,10 @@ public class GestorTipoInstrumentos
         }
         return lvValorRetorno;
     }
-
-    public List<TipoInstrumento> listaTipoInstrumentos()
+    
+    public List<Medida> listaMedidas()
     {
-        List<TipoInstrumento> lvLista = new ArrayList<>();
+        List<Medida> lvLista = new ArrayList<>();
 
         try 
         {
@@ -124,7 +124,7 @@ public class GestorTipoInstrumentos
             {
                 while (rs.next()) 
                 {
-                    lvLista.add(new TipoInstrumento(rs.getString("Codigo"), rs.getString("Nombre"), rs.getString("UnidadMedicion")));
+                    lvLista.add(new Medida(rs.getString("Numero"), rs.getString("Referencia"), rs.getString("Lectura")));
                 }
             }
         }
@@ -134,17 +134,17 @@ public class GestorTipoInstrumentos
         }
         return lvLista;
     }
-
+    
     public Object[][] obtenerTabla()
     {
-        List<TipoInstrumento> lvTipoInstrumentos = listaTipoInstrumentos();
-        Object[][] r = new Object[lvTipoInstrumentos.size()][3];
+        List<Medida> lvMedidas = listaMedidas();
+        Object[][] r = new Object[lvMedidas.size()][6];
         int lvIndice = 0;
-        for (TipoInstrumento lvTipoInstrumento : lvTipoInstrumentos)
+        for (Medida lvMedida : lvMedidas)
         {
-            r[lvIndice][0] = lvTipoInstrumento.obtenerCodigo();
-            r[lvIndice][1] = lvTipoInstrumento.obtenerNombre();
-            r[lvIndice][2] = lvTipoInstrumento.obtenerUnidadMedicion();
+            r[lvIndice][0] = lvMedida.obtenerNumero();
+            r[lvIndice][1] = lvMedida.obtenerReferencia();
+            r[lvIndice][2] = lvMedida.obtenerLectura();
             lvIndice++;
         }
         return r;
@@ -154,13 +154,12 @@ public class GestorTipoInstrumentos
     private static final String USUARIO = "root";
     private static final String CLAVE = "";
 
-    private static final String CMD_LISTAR = "SELECT Codigo, Nombre, UnidadMedicion FROM tipoinstrumento ORDER BY Codigo;";
-    private static final String CMD_AGREGAR = "INSERT INTO tipoinstrumento VALUES (?, ?, ?, ?);";
-    private static final String CMD_RECUPERAR = "SELECT Codigo, Nombre, UnidadMedicion FROM tipoinstrumento WHERE Codigo= ?;";
-    private static final String CMD_ACTUALIZAR = "UPDATE tipoinstrumento SET Nombre = ?, UnidadMedicion= ? WHERE Codigo= ?;";
-    private static final String CMD_ELIMINAR = "DELETE FROM tipoinstrumento WHERE Codigo = ?;";
+    private static final String CMD_LISTAR = "SELECT Numero, Referencia, Lectura FROM medida ORDER BY Numero;";
+    private static final String CMD_AGREGAR = "INSERT INTO medida VALUES (?, ?, ?);";
+    private static final String CMD_RECUPERAR = "SELECT Numero, Referencia, Lectura FROM medida WHERE Numero = ?;";
+    private static final String CMD_ACTUALIZAR = "UPDATE medida SET Referencia = ?, Lectura = ? WHERE Numero = ?;";
+    private static final String CMD_ELIMINAR = "DELETE FROM medida WHERE Numero = ?;";
 
-    private static GestorTipoInstrumentos aInstancia = null;
+    private static GestorMedidas aInstancia = null;
     private final GestorBaseDatos aBaseDatos;
 }
-

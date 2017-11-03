@@ -1,5 +1,6 @@
 package modeloinstrumentos.modeloa;
 
+
 public class TipoInstrumento
 {
 
@@ -41,10 +42,19 @@ public class TipoInstrumento
         return aUnidadMedicion;
     }
 
+    public static String[] obtenerDescripcion()
+    {
+        return aDescripcion;
+    }
+    
+    
+    
     public void establecerUnidadMedicion(String pUnidadMedicion)
     {
         this.aUnidadMedicion = pUnidadMedicion;
     }
+    
+    private static final String[] aDescripcion = {"Codigo", "Nombre", "Unidad de medicion"};
     
     String aCodigo;
     String aNombre;

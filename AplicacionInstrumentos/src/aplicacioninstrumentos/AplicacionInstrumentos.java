@@ -1,6 +1,6 @@
 package aplicacioninstrumentos;
 
-import aplicacioninstrumentos.vista.VentanaAplicacion;
+import aplicacioninstrumentos.vista.VentanaTipoInstrumentos;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -32,7 +32,7 @@ public class AplicacionInstrumentos
     
     public static void mostrarInterfaz()
     {
-        VentanaAplicacion lvVentanaPrincipal = new VentanaAplicacion();
+        VentanaTipoInstrumentos lvVentanaPrincipal = new VentanaTipoInstrumentos();
         lvVentanaPrincipal.init();
     }
     

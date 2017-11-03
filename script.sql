@@ -1,1 +1,1 @@
-SELECT * FROM instrumentos;
+SELECT * FROM instrumentos.calibracion;
