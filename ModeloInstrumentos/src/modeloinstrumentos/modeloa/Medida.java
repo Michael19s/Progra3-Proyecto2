@@ -2,7 +2,6 @@ package modeloinstrumentos.modeloa;
 
 public class Medida
 {
-
     public Medida(String pNumero, String pReferencia, String pLectura) 
     {
         this.aNumero = pNumero;
@@ -39,6 +38,13 @@ public class Medida
     {
         this.aLectura = pLectura;
     }
+    
+    public static String[] obtenerDescripcion()
+    {
+        return aDescripcion;
+    }
+    
+    private static final String[] aDescripcion = {"Numero", "Numero de referencia", "Numero de lectura"};
     
     String aNumero;
     String aReferencia;

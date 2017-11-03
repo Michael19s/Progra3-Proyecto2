@@ -20,7 +20,7 @@ public class Calibracion
         this.aNumeroCalibracion = pNumeroCalibracion;
     }
 
-    public String establecerInstrumento() 
+    public String obtenerInstrumento() 
     {
         return aInstrumento;
     }
@@ -49,7 +49,13 @@ public class Calibracion
         this.aMediciones = pMediciones;
     }
     
+    public static String[] obtenerDescripcion()
+    {
+        return aDescripcion;
+    }
     
+    private static final String[] aDescripcion = {"Numero", "Instrumento", "Fecha", "Mediciones"};
+
     
     String aNumeroCalibracion;
     String aInstrumento;

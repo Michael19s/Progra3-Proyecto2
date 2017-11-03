@@ -9,30 +9,31 @@ import java.util.ArrayList;
 import java.util.List;
 import modeloinstrumentos.modelo.dao.GestorBaseDatos;
 
-public class GestorTipoInstrumentos 
+public class GestorCalibracion 
 {
-    public GestorTipoInstrumentos() throws InstantiationException, ClassNotFoundException, IllegalAccessException
+    public GestorCalibracion() throws InstantiationException, ClassNotFoundException, IllegalAccessException
     {
         aBaseDatos = GestorBaseDatos.obtenerGestorBD( GestorBaseDatos.GBD.MYSQL_SERVER, GestorBaseDatos.SERVIDOR_POR_DEFECTO);
     }
     
-    public static GestorTipoInstrumentos obtenerInstancia() throws InstantiationException, ClassNotFoundException, IllegalAccessException 
+    public static GestorCalibracion obtenerInstancia() throws InstantiationException, ClassNotFoundException, IllegalAccessException 
     {
         if (aInstancia == null) 
-            aInstancia = new GestorTipoInstrumentos();
+            aInstancia = new GestorCalibracion();
         return aInstancia;
     }
-
-    public boolean agregar(TipoInstrumento nuevoTipoInstrumento)
+    
+    public boolean agregar(Calibracion pNuevaCalibracion)
     {
         boolean lvValorRetorno = false;
         try 
         {
             try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); PreparedStatement lvPaso = lvConexion.prepareStatement(CMD_AGREGAR)) {
                 lvPaso.clearParameters();
-                lvPaso.setString(1, nuevoTipoInstrumento.obtenerCodigo());
-                lvPaso.setString(2, nuevoTipoInstrumento.obtenerNombre());
-                lvPaso.setString(3, nuevoTipoInstrumento.obtenerUnidadMedicion());
+                lvPaso.setString(1, pNuevaCalibracion.obtenerNumeroCalibracion());
+                lvPaso.setString(2, pNuevaCalibracion.obtenerInstrumento());
+                lvPaso.setString(3, pNuevaCalibracion.obtenerFecha());
+                lvPaso.setString(4, pNuevaCalibracion.obtenerMediciones());
 
                 int r = lvPaso.executeUpdate();
                 lvValorRetorno = (r == 1);
@@ -45,20 +46,20 @@ public class GestorTipoInstrumentos
         return lvValorRetorno;
     }
 
-    public TipoInstrumento recuperar(String pCodigo)
+    public Calibracion recuperar(String pNumero)
     {
-        TipoInstrumento lvTipoInstrumento = null;
+        Calibracion lvCalibracion = null;
         try 
         {
             try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); PreparedStatement lvPaso = lvConexion.prepareStatement(CMD_RECUPERAR)) 
             {
                 lvPaso.clearParameters();
-                lvPaso.setString(1, pCodigo);
+                lvPaso.setString(1, pNumero);
 
                 try (ResultSet rs = lvPaso.executeQuery()) 
                 {
                     if (rs.next()) 
-                        lvTipoInstrumento = new TipoInstrumento(rs.getString("Codigo"), rs.getString("Nombre"), rs.getString("UnidadMedicion"));
+                        lvCalibracion = new Calibracion(rs.getString("Numero"), rs.getString("Instrumento"), rs.getString("Fecha"), rs.getString("Mediciones"));
                 }
             }
         } 
@@ -67,10 +68,10 @@ public class GestorTipoInstrumentos
             System.err.printf("Excepción: '%s'%n",
                     ex.getMessage());
         }
-        return lvTipoInstrumento;
+        return lvCalibracion;
     }
 
-    public boolean actualizar(TipoInstrumento pTipoInstrumento)
+    public boolean actualizar(Calibracion pCalibracion)
     {
         boolean lvValorRetorno = false;
         try 
@@ -78,9 +79,10 @@ public class GestorTipoInstrumentos
             try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); PreparedStatement lvPaso = lvConexion.prepareStatement(CMD_ACTUALIZAR))
             {
                 lvPaso.clearParameters();
-                lvPaso.setString(1, pTipoInstrumento.obtenerNombre());
-                lvPaso.setString(2, pTipoInstrumento.obtenerUnidadMedicion());
-                lvPaso.setString(3, pTipoInstrumento.obtenerCodigo());
+                lvPaso.setString(1, pCalibracion.obtenerInstrumento());
+                lvPaso.setString(2, pCalibracion.obtenerFecha());
+                lvPaso.setString(3, pCalibracion.obtenerMediciones());
+                lvPaso.setString(4, pCalibracion.obtenerNumeroCalibracion());
 
                 int r = lvPaso.executeUpdate();
                 lvValorRetorno = (r == 1);
@@ -93,7 +95,7 @@ public class GestorTipoInstrumentos
         return lvValorRetorno;
     }
 
-    public boolean eliminar(String pCodigo)
+    public boolean eliminar(String pNumero)
     {
         boolean lvValorRetorno = false;
         try 
@@ -101,7 +103,7 @@ public class GestorTipoInstrumentos
             try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); PreparedStatement lvPaso = lvConexion.prepareStatement(CMD_ELIMINAR))
             {
                 lvPaso.clearParameters();
-                lvPaso.setString(1, pCodigo);
+                lvPaso.setString(1, pNumero);
 
                 int r = lvPaso.executeUpdate();
                 lvValorRetorno = (r == 1);
@@ -113,10 +115,10 @@ public class GestorTipoInstrumentos
         }
         return lvValorRetorno;
     }
-
-    public List<TipoInstrumento> listaTipoInstrumentos()
+    
+    public List<Calibracion> listaCalibraciones()
     {
-        List<TipoInstrumento> lvLista = new ArrayList<>();
+        List<Calibracion> lvLista = new ArrayList<>();
 
         try 
         {
@@ -124,7 +126,7 @@ public class GestorTipoInstrumentos
             {
                 while (rs.next()) 
                 {
-                    lvLista.add(new TipoInstrumento(rs.getString("Codigo"), rs.getString("Nombre"), rs.getString("UnidadMedicion")));
+                    lvLista.add(new Calibracion(rs.getString("Numero"), rs.getString("Instrumento"), rs.getString("Fecha"), rs.getString("Mediciones")));
                 }
             }
         }
@@ -134,33 +136,33 @@ public class GestorTipoInstrumentos
         }
         return lvLista;
     }
-
+    
     public Object[][] obtenerTabla()
     {
-        List<TipoInstrumento> lvTipoInstrumentos = listaTipoInstrumentos();
-        Object[][] r = new Object[lvTipoInstrumentos.size()][3];
+        List<Calibracion> lvCalibraciones = listaCalibraciones();
+        Object[][] r = new Object[lvCalibraciones.size()][6];
         int lvIndice = 0;
-        for (TipoInstrumento lvTipoInstrumento : lvTipoInstrumentos)
+        for (Calibracion lvCalibracion : lvCalibraciones)
         {
-            r[lvIndice][0] = lvTipoInstrumento.obtenerCodigo();
-            r[lvIndice][1] = lvTipoInstrumento.obtenerNombre();
-            r[lvIndice][2] = lvTipoInstrumento.obtenerUnidadMedicion();
+            r[lvIndice][0] = lvCalibracion.obtenerNumeroCalibracion();
+            r[lvIndice][1] = lvCalibracion.obtenerInstrumento();
+            r[lvIndice][2] = lvCalibracion.obtenerFecha();
+            r[lvIndice][3] = lvCalibracion.obtenerMediciones();
             lvIndice++;
         }
         return r;
     }
-
+    
     private static final String BASE_DATOS = "instrumentos";
     private static final String USUARIO = "root";
     private static final String CLAVE = "";
 
-    private static final String CMD_LISTAR = "SELECT Codigo, Nombre, UnidadMedicion FROM tipoinstrumento ORDER BY Codigo;";
-    private static final String CMD_AGREGAR = "INSERT INTO tipoinstrumento VALUES (?, ?, ?, ?);";
-    private static final String CMD_RECUPERAR = "SELECT Codigo, Nombre, UnidadMedicion FROM tipoinstrumento WHERE Codigo= ?;";
-    private static final String CMD_ACTUALIZAR = "UPDATE tipoinstrumento SET Nombre = ?, UnidadMedicion= ? WHERE Codigo= ?;";
-    private static final String CMD_ELIMINAR = "DELETE FROM tipoinstrumento WHERE Codigo = ?;";
+    private static final String CMD_LISTAR = "SELECT Numero, Instrumento, Fecha, Mediciones FROM calibracion ORDER BY Numero;";
+    private static final String CMD_AGREGAR = "INSERT INTO calibracion VALUES (?, ?, ?, ?);";
+    private static final String CMD_RECUPERAR = "SELECT Numero, Instrumento, Fecha, Mediciones FROM calibracion WHERE Numero = ?;";
+    private static final String CMD_ACTUALIZAR = "UPDATE calibracion SET Instrumento = ?, Fecha = ?, Medicion = ? WHERE Numero = ?;";
+    private static final String CMD_ELIMINAR = "DELETE FROM calibracion WHERE Numero = ?;";
 
-    private static GestorTipoInstrumentos aInstancia = null;
+    private static GestorCalibracion aInstancia = null;
     private final GestorBaseDatos aBaseDatos;
 }
-

@@ -79,6 +79,13 @@ public class Instrumento
         this.aTolerancia = pTolerancia;
     }
     
+    public static String[] obtenerDescripcionTbl()
+    {
+        return aDescripcionTbl;
+    }
+    
+    private static final String[] aDescripcionTbl = {"Numero Serie", "Tipo", "Descripcion", "Maximo", "Minimo", "Tolerancia"};
+    
     String aNumeroSerie;
     String aTipo;
     String aDescripcion;
