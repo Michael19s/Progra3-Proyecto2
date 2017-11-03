@@ -127,112 +127,112 @@ public class VentanaCalibraciones extends JFrame
         pnlBusqueda.add(btnBuscar = new JButton("Buscar"), gbc4);
 
         lblBusquedaAdv.setText("Busqueda avanzada:");
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(6, 10, 0, 0);
-        pnlBusqueda.add(lblBusquedaAdv, gridBagConstraints);
-
-        cbxTipo.setText("Instrumento");
-        cbxTipo.addActionListener(new event.ActionListener() {
-            public void actionPerformed(event.ActionEvent evt) {
-                cbxTipoActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(5, 2, 0, 0);
-        pnlBusqueda.add(cbxTipo, gridBagConstraints);
-
-        cbxMinimo.setText("Fecha");
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 4;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(3, 2, 0, 0);
-        pnlBusqueda.add(cbxMinimo, gridBagConstraints);
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 11;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 10;
-        gridBagConstraints.ipadx = 156;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(6, 2, 0, 0);
-        pnlBusqueda.add(txtBusqTipo, gridBagConstraints);
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 14;
-        gridBagConstraints.ipadx = 186;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(4, 2, 0, 0);
-        pnlBusqueda.add(txtBusqMinimo, gridBagConstraints);
-
-        jCheckBox1.setText("Numero de Mediciones");
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.gridwidth = 9;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(3, 2, 9, 0);
-        pnlBusqueda.add(jCheckBox1, gridBagConstraints);
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 20;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.ipadx = 108;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(4, 2, 0, 0);
-        pnlBusqueda.add(jTextField1, gridBagConstraints);
-
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(6, 10, 0, 0);
-        getContentPane().add(pnlBusqueda, gridBagConstraints);
-
-        tblInstrumentos.setModel(new table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Numero de calibracion", "Instrumento", "Numero de mediciones"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        scpTabla.setViewportView(tblInstrumentos);
-
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 754;
-        gridBagConstraints.ipady = 115;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new Insets(6, 10, 11, 10);
-        getContentPane().add(scpTabla, gridBagConstraints);
+//        gridBagConstraints = new GridBagConstraints();
+//        gridBagConstraints.gridx = 0;
+//        gridBagConstraints.gridy = 3;
+//        gridBagConstraints.gridwidth = 2;
+//        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+//        gridBagConstraints.insets = new Insets(6, 10, 0, 0);
+//        pnlBusqueda.add(lblBusquedaAdv, gridBagConstraints);
+//
+//        cbxTipo.setText("Instrumento");
+//        cbxTipo.addActionListener(new event.ActionListener() {
+//            public void actionPerformed(event.ActionEvent evt) {
+//                cbxTipoActionPerformed(evt);
+//            }
+//        });
+//        gridBagConstraints = new GridBagConstraints();
+//        gridBagConstraints.gridx = 3;
+//        gridBagConstraints.gridy = 4;
+//        gridBagConstraints.gridwidth = 5;
+//        gridBagConstraints.gridheight = 2;
+//        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+//        gridBagConstraints.insets = new Insets(5, 2, 0, 0);
+//        pnlBusqueda.add(cbxTipo, gridBagConstraints);
+//
+//        cbxMinimo.setText("Fecha");
+//        gridBagConstraints = new GridBagConstraints();
+//        gridBagConstraints.gridx = 3;
+//        gridBagConstraints.gridy = 6;
+//        gridBagConstraints.gridwidth = 4;
+//        gridBagConstraints.gridheight = 2;
+//        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+//        gridBagConstraints.insets = new Insets(3, 2, 0, 0);
+//        pnlBusqueda.add(cbxMinimo, gridBagConstraints);
+//        gridBagConstraints = new GridBagConstraints();
+//        gridBagConstraints.gridx = 11;
+//        gridBagConstraints.gridy = 4;
+//        gridBagConstraints.gridwidth = 10;
+//        gridBagConstraints.ipadx = 156;
+//        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+//        gridBagConstraints.insets = new Insets(6, 2, 0, 0);
+//        pnlBusqueda.add(txtBusqTipo, gridBagConstraints);
+//        gridBagConstraints = new GridBagConstraints();
+//        gridBagConstraints.gridx = 7;
+//        gridBagConstraints.gridy = 6;
+//        gridBagConstraints.gridwidth = 14;
+//        gridBagConstraints.ipadx = 186;
+//        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+//        gridBagConstraints.insets = new Insets(4, 2, 0, 0);
+//        pnlBusqueda.add(txtBusqMinimo, gridBagConstraints);
+//
+//        jCheckBox1.setText("Numero de Mediciones");
+//        gridBagConstraints = new GridBagConstraints();
+//        gridBagConstraints.gridx = 3;
+//        gridBagConstraints.gridy = 8;
+//        gridBagConstraints.gridwidth = 9;
+//        gridBagConstraints.gridheight = 2;
+//        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+//        gridBagConstraints.insets = new Insets(3, 2, 9, 0);
+//        pnlBusqueda.add(jCheckBox1, gridBagConstraints);
+//        gridBagConstraints = new GridBagConstraints();
+//        gridBagConstraints.gridx = 20;
+//        gridBagConstraints.gridy = 8;
+//        gridBagConstraints.ipadx = 108;
+//        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+//        gridBagConstraints.insets = new Insets(4, 2, 0, 0);
+//        pnlBusqueda.add(jTextField1, gridBagConstraints);
+//
+//        gridBagConstraints = new GridBagConstraints();
+//        gridBagConstraints.gridx = 1;
+//        gridBagConstraints.gridy = 2;
+//        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+//        gridBagConstraints.insets = new Insets(6, 10, 0, 0);
+//        getContentPane().add(pnlBusqueda, gridBagConstraints);
+//
+//        tblInstrumentos.setModel(new table.DefaultTableModel(
+//            new Object [][] {
+//                {null, null, null},
+//                {null, null, null},
+//                {null, null, null},
+//                {null, null, null}
+//            },
+//            new String [] {
+//                "Numero de calibracion", "Instrumento", "Numero de mediciones"
+//            }
+//        ) {
+//            boolean[] canEdit = new boolean [] {
+//                false, false, false
+//            };
+//
+//            public boolean isCellEditable(int rowIndex, int columnIndex) {
+//                return canEdit [columnIndex];
+//            }
+//        });
+//        scpTabla.setViewportView(tblInstrumentos);
+//
+//        gridBagConstraints = new GridBagConstraints();
+//        gridBagConstraints.gridx = 1;
+//        gridBagConstraints.gridy = 3;
+//        gridBagConstraints.gridwidth = 3;
+//        gridBagConstraints.fill = GridBagConstraints.BOTH;
+//        gridBagConstraints.ipadx = 754;
+//        gridBagConstraints.ipady = 115;
+//        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+//        gridBagConstraints.weightx = 1.0;
+//        gridBagConstraints.weighty = 1.0;
+//        gridBagConstraints.insets = new Insets(6, 10, 11, 10);
+//        getContentPane().add(scpTabla, gridBagConstraints);
 
         pack();
     }
