@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -20,6 +22,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import modeloinstrumentos.modeloa.Calibracion;
 import modeloinstrumentos.modeloa.GestorCalibracion;
+import modeloinstrumentos.modeloa.Instrumento;
 
 public class VentanaCalibraciones extends JFrame
 {
@@ -98,7 +101,7 @@ public class VentanaCalibraciones extends JFrame
         gbc2.gridheight = 2;
         gbc2.anchor = GridBagConstraints.NORTHWEST;
         gbc2.insets = new Insets(12, 4, 0, 0);
-        String[] lvString = new String[] { "Numero Calibracion", "Instrumento", "Fecha", "Mediciones" };
+        String[] lvString = new String[] { "Numero de calibracion", "Instrumento", "Fecha", "Mediciones" };
         pnlBusqueda.add(cmbBusqueda = new JComboBox<>(lvString), gbc2);
         
         GridBagConstraints gbc3 = new GridBagConstraints();
@@ -210,6 +213,24 @@ public class VentanaCalibraciones extends JFrame
         gbcTabla.weighty = 1.0;
         gbcTabla.insets = new Insets(6, 10, 11, 10);
         getContentPane().add(scpTabla, gbcTabla);
+        
+        txtBusqueda.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                try 
+                {
+                    tblBusqueda = new JTable(GestorCalibracion.obtenerInstancia().obtenerTablaBusqueda((String)cmbBusqueda.getSelectedItem(), txtBusqueda.getText()), Calibracion.obtenerDescripcion());
+                }
+                catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+                {
+                    System.err.printf(ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                scpTabla.setViewportView(tblBusqueda);
+            }
+        });
     }
     
     public void init()
@@ -241,6 +262,7 @@ public class VentanaCalibraciones extends JFrame
     private JScrollPane scpTabla;
     
     private JTable tblCalibraciones;
+    private JTable tblBusqueda;
     
     private JTextField txtBusqMinimo;
     private JTextField txtBusqTipo;

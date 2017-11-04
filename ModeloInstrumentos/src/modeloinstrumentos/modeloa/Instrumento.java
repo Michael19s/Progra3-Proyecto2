@@ -3,7 +3,7 @@ package modeloinstrumentos.modeloa;
 public class Instrumento 
 {
 
-    public Instrumento(String pNumeroSerie, String pTipo, String pDescripcion, String pMinimo, String pMaximo, String pTolerancia)
+    public Instrumento(String pNumeroSerie, String pTipo, String pDescripcion, int pMinimo, int pMaximo, int pTolerancia)
     {
         this.aNumeroSerie = pNumeroSerie;
         this.aTipo = pTipo;
@@ -49,32 +49,32 @@ public class Instrumento
         this.aDescripcion = pDescripcion;
     }
 
-    public String obtenerMinimo() 
+    public int obtenerMinimo() 
     {
         return aMinimo;
     }
 
-    public void establecerMinimo(String pMinimo) 
+    public void establecerMinimo(int pMinimo) 
     {
         this.aMinimo = pMinimo;
     }
     
-    public String obtenerMaximo() 
+    public int obtenerMaximo() 
     {
         return aMaximo;
     }
 
-    public void establecerMaximo(String pMaximo) 
+    public void establecerMaximo(int pMaximo) 
     {
         this.aMaximo = pMaximo;
     }
 
-    public String obtenerTolerancia() 
+    public int obtenerTolerancia() 
     {
         return aTolerancia;
     }
   
-    public void establecerTolerancia(String pTolerancia) 
+    public void establecerTolerancia(int pTolerancia) 
     {
         this.aTolerancia = pTolerancia;
     }
@@ -84,12 +84,12 @@ public class Instrumento
         return aDescripcionTbl;
     }
     
-    private static final String[] aDescripcionTbl = {"Numero Serie", "Tipo", "Descripcion", "Maximo", "Minimo", "Tolerancia"};
+    private static final String[] aDescripcionTbl = {"Numero de serie", "Tipo", "Descripcion", "Minimo", "Maximo", "Tolerancia"};
     
-    String aNumeroSerie;
-    String aTipo;
-    String aDescripcion;
-    String aMinimo;
-    String aMaximo;
-    String aTolerancia;
+    private String aNumeroSerie;
+    private String aTipo;
+    private String aDescripcion;
+    private int aMinimo;
+    private int aMaximo;
+    private int aTolerancia;
 }

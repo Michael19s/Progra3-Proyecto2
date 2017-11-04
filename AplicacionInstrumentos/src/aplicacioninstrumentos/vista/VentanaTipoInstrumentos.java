@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -17,7 +19,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import modeloinstrumentos.modeloa.GestorInstrumentos;
 import modeloinstrumentos.modeloa.GestorTipoInstrumentos;
+import modeloinstrumentos.modeloa.Instrumento;
 import modeloinstrumentos.modeloa.TipoInstrumento;
 
 public class VentanaTipoInstrumentos extends JFrame
@@ -186,6 +190,24 @@ public class VentanaTipoInstrumentos extends JFrame
         gbcTabla.weighty = 1.0;
         gbcTabla.insets = new Insets(6, 10, 11, 10);
         c.add(scpTabla, gbcTabla);
+        
+        txtBusqueda.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                try 
+                {
+                    tblBusqueda = new JTable(GestorTipoInstrumentos.obtenerInstancia().obtenerTablaBusqueda((String)cmbBusqueda.getSelectedItem(), txtBusqueda.getText()), TipoInstrumento.obtenerDescripcion());
+                }
+                catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+                {
+                    System.err.printf(ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                scpTabla.setViewportView(tblBusqueda);
+            }
+        });
     }
 
     public void init()
@@ -214,6 +236,7 @@ public class VentanaTipoInstrumentos extends JFrame
     private JScrollPane scpTabla;
     
     private JTable tblTipoInstrumentos;
+    private JTable tblBusqueda;
     
     private JTextField txtBusqMinimo;
     private JTextField txtBusqTipo;

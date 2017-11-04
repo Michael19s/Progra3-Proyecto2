@@ -33,9 +33,9 @@ public class GestorInstrumentos
                 lvPaso.setString(1, nuevoInstrumento.obtenerNumeroSerie());
                 lvPaso.setString(2, nuevoInstrumento.obtenerTipo());
                 lvPaso.setString(3, nuevoInstrumento.obtenerDescripcion());
-                lvPaso.setString(4, nuevoInstrumento.obtenerMinimo());
-                lvPaso.setString(5, nuevoInstrumento.obtenerMaximo());
-                lvPaso.setString(6, nuevoInstrumento.obtenerTolerancia());
+                lvPaso.setInt(4, nuevoInstrumento.obtenerMinimo());
+                lvPaso.setInt(5, nuevoInstrumento.obtenerMaximo());
+                lvPaso.setInt(6, nuevoInstrumento.obtenerTolerancia());
 
                 int r = lvPaso.executeUpdate();
                 lvValorRetorno = (r == 1);
@@ -61,7 +61,7 @@ public class GestorInstrumentos
                 try (ResultSet rs = lvPaso.executeQuery()) 
                 {
                     if (rs.next()) 
-                        lvInstrumento = new Instrumento(rs.getString("NumeroSerie"), rs.getString("Tipo"), rs.getString("Descripcion"), rs.getString("Minimo"), rs.getString("Maximo"), rs.getString("Tolerancia"));
+                        lvInstrumento = new Instrumento(rs.getString("NumeroSerie"), rs.getString("Tipo"), rs.getString("Descripcion"), rs.getInt("Minimo"), rs.getInt("Maximo"), rs.getInt("Tolerancia"));
                 }
             }
         } 
@@ -83,9 +83,9 @@ public class GestorInstrumentos
                 lvPaso.clearParameters();
                 lvPaso.setString(1, pInstrumento.obtenerTipo());
                 lvPaso.setString(2, pInstrumento.obtenerDescripcion());
-                lvPaso.setString(3, pInstrumento.obtenerMinimo());
-                lvPaso.setString(4, pInstrumento.obtenerMaximo());
-                lvPaso.setString(5, pInstrumento.obtenerTolerancia());
+                lvPaso.setInt(3, pInstrumento.obtenerMinimo());
+                lvPaso.setInt(4, pInstrumento.obtenerMaximo());
+                lvPaso.setInt(5, pInstrumento.obtenerTolerancia());
                 lvPaso.setString(6, pInstrumento.obtenerNumeroSerie());
 
                 int r = lvPaso.executeUpdate();
@@ -130,7 +130,7 @@ public class GestorInstrumentos
             {
                 while (rs.next()) 
                 {
-                    lvLista.add(new Instrumento(rs.getString("NumeroSerie"), rs.getString("Tipo"), rs.getString("Descripcion"), rs.getString("Minimo"), rs.getString("Maximo"), rs.getString("Tolerancia")));
+                    lvLista.add(new Instrumento(rs.getString("NumeroSerie"), rs.getString("Tipo"), rs.getString("Descripcion"), Integer.parseInt(rs.getString("Minimo")), Integer.parseInt(rs.getString("Maximo")), Integer.parseInt(rs.getString("Tolerancia"))));
                 }
             }
         }
@@ -161,9 +161,10 @@ public class GestorInstrumentos
 
     public List<Instrumento> buscar(String pFiltro, String pValor)
     {
-        String SSQL;
+        String CMD_BUSCAR;
         List<Instrumento> lvLista = new ArrayList<>();
         String lvCriterioBusqueda = "";
+        boolean esString = true;
         switch (pFiltro)
         {
             case "Numero de serie":
@@ -171,24 +172,30 @@ public class GestorInstrumentos
                 break;
             case "Indice de tolerancia":
                 lvCriterioBusqueda = "Tolerancia";
+                esString = false;
                 break;
             case "Tipo":
             case "Descripcion":
+                lvCriterioBusqueda = pFiltro;
             case "Minimo":
             case "Maximo":
+                esString = false;
                 lvCriterioBusqueda = pFiltro;
                 break;
             default:
                 break;
         }
-        SSQL = "SELECT NumeroSerie, Tipo, Descripcion, Minimo, Maximo, Tolerancia FROM instrumento WHERE "+ lvCriterioBusqueda + " LIKE '%" + pValor + "%';";
+        if((esString)||(pValor.equals("")))
+            CMD_BUSCAR = "SELECT * FROM instrumento WHERE "+ lvCriterioBusqueda + " LIKE '%" + pValor + "%';";
+        else
+            CMD_BUSCAR = "SELECT * FROM instrumento WHERE "+ lvCriterioBusqueda + " LIKE '%" + pValor + "%';";
         try 
         {
-            try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); Statement lvPaso = lvConexion.createStatement(); ResultSet rs = lvPaso.executeQuery(SSQL)) 
+            try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); Statement lvPaso = lvConexion.createStatement(); ResultSet rs = lvPaso.executeQuery(CMD_BUSCAR)) 
             {
                 while (rs.next()) 
                 {
-                    lvLista.add(new Instrumento(rs.getString("NumeroSerie"), rs.getString("Tipo"), rs.getString("Descripcion"), rs.getString("Minimo"), rs.getString("Maximo"), rs.getString("Tolerancia")));
+                    lvLista.add(new Instrumento(rs.getString("NumeroSerie"), rs.getString("Tipo"), rs.getString("Descripcion"), Integer.parseInt(rs.getString("Minimo")), Integer.parseInt(rs.getString("Maximo")), Integer.parseInt(rs.getString("Tolerancia"))));
                 }
             }
         }

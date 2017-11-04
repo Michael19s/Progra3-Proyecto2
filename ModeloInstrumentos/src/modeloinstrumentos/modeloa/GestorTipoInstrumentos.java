@@ -150,6 +150,56 @@ public class GestorTipoInstrumentos
         return r;
     }
 
+        public List<TipoInstrumento> buscar(String pFiltro, String pValor)
+    {
+        String CMD_BUSCAR;
+        List<TipoInstrumento> lvLista = new ArrayList<>();
+        String lvCriterioBusqueda = "";
+        switch (pFiltro)
+        {
+            case "Unidad de medicion":
+                lvCriterioBusqueda = "UnidadMedicion";
+                break;
+            case "Codigo":
+            case "Nombre":
+                lvCriterioBusqueda = pFiltro;
+                break;
+            default:
+                break;
+        }
+        CMD_BUSCAR = "SELECT * FROM tipoinstrumento WHERE "+ lvCriterioBusqueda + " LIKE '%" + pValor + "%';";
+        try 
+        {
+            try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); Statement lvPaso = lvConexion.createStatement(); ResultSet rs = lvPaso.executeQuery(CMD_BUSCAR)) 
+            {
+                while (rs.next()) 
+                {
+                    lvLista.add(new TipoInstrumento(rs.getString("Codigo"), rs.getString("Nombre"), rs.getString("UnidadMedicion")));
+                }
+            }
+        }
+        catch (SQLException ex) 
+        {
+            System.err.printf("Excepción: '%s'%n", ex.getMessage());
+        }
+        return lvLista;
+    }
+    
+    public Object[][] obtenerTablaBusqueda(String pFiltro, String pValor)
+    {
+        List<TipoInstrumento> lvTipoInstrumentos = buscar(pFiltro, pValor);
+        Object[][] r = new Object[lvTipoInstrumentos.size()][3];
+        int lvIndice = 0;
+        for (TipoInstrumento lvTipoInstrumento : lvTipoInstrumentos)
+        {
+            r[lvIndice][0] = lvTipoInstrumento.obtenerCodigo();
+            r[lvIndice][1] = lvTipoInstrumento.obtenerNombre();
+            r[lvIndice][2] = lvTipoInstrumento.obtenerUnidadMedicion();
+            lvIndice++;
+        }
+        return r;
+    }
+    
     private static final String BASE_DATOS = "instrumentos";
     private static final String USUARIO = "root";
     private static final String CLAVE = "";

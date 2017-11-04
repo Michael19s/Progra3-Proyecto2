@@ -2,39 +2,39 @@ package modeloinstrumentos.modeloa;
 
 public class Medida
 {
-    public Medida(String pNumero, String pReferencia, String pLectura) 
+    public Medida(int pNumero, int pReferencia, int pLectura) 
     {
         this.aNumero = pNumero;
         this.aReferencia = pReferencia;
         this.aLectura = pLectura;
     }
 
-    public String obtenerNumero() 
+    public int obtenerNumero() 
     {
         return aNumero;
     }
 
-    public void establecerNumero(String pNumero)
+    public void establecerNumero(int pNumero)
     {
         this.aNumero = pNumero;
     }
 
-    public String obtenerReferencia() 
+    public int obtenerReferencia() 
     {
         return aReferencia;
     }
 
-    public void establecerReferencia(String pReferencia) 
+    public void establecerReferencia(int pReferencia) 
     {
         this.aReferencia = pReferencia;
     }
 
-    public String obtenerLectura() 
+    public int obtenerLectura() 
     {
         return aLectura;
     }
 
-    public void establecerLectura(String pLectura) 
+    public void establecerLectura(int pLectura) 
     {
         this.aLectura = pLectura;
     }
@@ -46,7 +46,7 @@ public class Medida
     
     private static final String[] aDescripcion = {"Numero", "Numero de referencia", "Numero de lectura"};
     
-    String aNumero;
-    String aReferencia;
-    String aLectura;
+    int aNumero;
+    int aReferencia;
+    int aLectura;
 }

@@ -1,6 +1,7 @@
 package modeloinstrumentos.modeloa;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,9 +31,10 @@ public class GestorCalibracion
         {
             try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); PreparedStatement lvPaso = lvConexion.prepareStatement(CMD_AGREGAR)) {
                 lvPaso.clearParameters();
-                lvPaso.setString(1, pNuevaCalibracion.obtenerNumeroCalibracion());
+                //Existe el setInt x aquello de que luego se genere una bronca
+                lvPaso.setInt(1, pNuevaCalibracion.obtenerNumeroCalibracion());
                 lvPaso.setString(2, pNuevaCalibracion.obtenerInstrumento());
-                lvPaso.setString(3, pNuevaCalibracion.obtenerFecha());
+                lvPaso.setDate(3, pNuevaCalibracion.obtenerFecha());
                 lvPaso.setString(4, pNuevaCalibracion.obtenerMediciones());
 
                 int r = lvPaso.executeUpdate();
@@ -59,7 +61,7 @@ public class GestorCalibracion
                 try (ResultSet rs = lvPaso.executeQuery()) 
                 {
                     if (rs.next()) 
-                        lvCalibracion = new Calibracion(rs.getString("Numero"), rs.getString("Instrumento"), rs.getString("Fecha"), rs.getString("Mediciones"));
+                        lvCalibracion = new Calibracion(rs.getInt("Numero"), rs.getString("Instrumento"), rs.getDate("Fecha"), rs.getString("Mediciones"));
                 }
             }
         } 
@@ -80,9 +82,9 @@ public class GestorCalibracion
             {
                 lvPaso.clearParameters();
                 lvPaso.setString(1, pCalibracion.obtenerInstrumento());
-                lvPaso.setString(2, pCalibracion.obtenerFecha());
+                lvPaso.setDate(2, pCalibracion.obtenerFecha());
                 lvPaso.setString(3, pCalibracion.obtenerMediciones());
-                lvPaso.setString(4, pCalibracion.obtenerNumeroCalibracion());
+                lvPaso.setInt(4, pCalibracion.obtenerNumeroCalibracion());
 
                 int r = lvPaso.executeUpdate();
                 lvValorRetorno = (r == 1);
@@ -126,7 +128,7 @@ public class GestorCalibracion
             {
                 while (rs.next()) 
                 {
-                    lvLista.add(new Calibracion(rs.getString("Numero"), rs.getString("Instrumento"), rs.getString("Fecha"), rs.getString("Mediciones")));
+                    lvLista.add(new Calibracion(rs.getInt("Numero"), rs.getString("Instrumento"), rs.getDate("Fecha"), rs.getString("Mediciones")));
                 }
             }
         }
@@ -141,6 +143,73 @@ public class GestorCalibracion
     {
         List<Calibracion> lvCalibraciones = listaCalibraciones();
         Object[][] r = new Object[lvCalibraciones.size()][6];
+        int lvIndice = 0;
+        for (Calibracion lvCalibracion : lvCalibraciones)
+        {
+            r[lvIndice][0] = lvCalibracion.obtenerNumeroCalibracion();
+            r[lvIndice][1] = lvCalibracion.obtenerInstrumento();
+            r[lvIndice][2] = lvCalibracion.obtenerFecha();
+            r[lvIndice][3] = lvCalibracion.obtenerMediciones();
+            lvIndice++;
+        }
+        return r;
+    }
+    
+        public List<Calibracion> buscar(String pFiltro, String pValor)
+    {
+        String CMD_BUSCAR = "";
+        List<Calibracion> lvLista = new ArrayList<>();
+        String lvCriterioBusqueda = "";
+        boolean lvEsString = true;
+        switch (pFiltro)
+        {
+            case "Numero de calibracion":
+                lvCriterioBusqueda = "Numero";
+                lvEsString = false;
+                break;
+            case "Instrumento":
+                lvCriterioBusqueda = pFiltro;
+                break;
+            case "Fecha":
+                lvCriterioBusqueda = pFiltro;
+                lvEsString = false;
+                break;
+            case "Mediciones":
+                lvCriterioBusqueda = pFiltro;
+                break;
+            default:
+                break;
+        }
+        if(lvEsString || pValor.equals(""))
+            CMD_BUSCAR = "SELECT * FROM calibracion WHERE "+ lvCriterioBusqueda + " LIKE '%" + pValor + "%';";
+        else
+            if(lvCriterioBusqueda.equals("Fecha"))
+                CMD_BUSCAR = "SELECT * FROM calibracion WHERE "+ lvCriterioBusqueda + " LIKE '%" + Date.valueOf(pValor) + "%';";
+            else
+                if(lvCriterioBusqueda.equals("Numero"))
+                    CMD_BUSCAR = "SELECT * FROM calibracion WHERE "+ lvCriterioBusqueda + " LIKE '%" + Integer.parseInt(pValor) + "%';";   
+
+        try 
+        {
+            try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); Statement lvPaso = lvConexion.createStatement(); ResultSet rs = lvPaso.executeQuery(CMD_BUSCAR)) 
+            {
+                while (rs.next()) 
+                {
+                    lvLista.add(new Calibracion(rs.getInt("Numero"), rs.getString("Instrumento"), rs.getDate("Fecha"), rs.getString("Mediciones")));
+                }
+            }
+        }
+        catch (SQLException ex) 
+        {
+            System.err.printf("Excepción: '%s'%n", ex.getMessage());
+        }
+        return lvLista;
+    }
+    
+    public Object[][] obtenerTablaBusqueda(String pFiltro, String pValor)
+    {
+        List<Calibracion> lvCalibraciones = buscar(pFiltro, pValor);
+        Object[][] r = new Object[lvCalibraciones.size()][4];
         int lvIndice = 0;
         for (Calibracion lvCalibracion : lvCalibraciones)
         {

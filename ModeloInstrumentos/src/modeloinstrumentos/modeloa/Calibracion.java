@@ -1,8 +1,10 @@
 package modeloinstrumentos.modeloa;
 
+import java.sql.Date;
+
 public class Calibracion 
 {
-    public Calibracion(String pNumeroCalibracion, String pInstrumento, String pFecha, String pMediciones) 
+    public Calibracion(int pNumeroCalibracion, String pInstrumento, Date pFecha, String pMediciones) 
     {
         this.aNumeroCalibracion = pNumeroCalibracion;
         this.aInstrumento = pInstrumento;
@@ -10,12 +12,12 @@ public class Calibracion
         this.aMediciones = pMediciones;
     }
 
-    public String obtenerNumeroCalibracion() 
+    public int obtenerNumeroCalibracion() 
     {
         return aNumeroCalibracion;
     }
 
-    public void setaNumeroCalibracion(String pNumeroCalibracion) 
+    public void setaNumeroCalibracion(int pNumeroCalibracion) 
     {
         this.aNumeroCalibracion = pNumeroCalibracion;
     }
@@ -30,12 +32,12 @@ public class Calibracion
         this.aInstrumento = pInstrumento;
     }
 
-    public String obtenerFecha() 
+    public Date obtenerFecha() 
     {
         return aFecha;
     }
 
-    public void establecerFecha(String pFecha) {
+    public void establecerFecha(Date pFecha) {
         this.aFecha = pFecha;
     }
 
@@ -54,11 +56,11 @@ public class Calibracion
         return aDescripcion;
     }
     
-    private static final String[] aDescripcion = {"Numero", "Instrumento", "Fecha", "Mediciones"};
+    private static final String[] aDescripcion = {"Numero de calibracion", "Instrumento", "Fecha", "Mediciones"};
 
     
-    String aNumeroCalibracion;
+    int aNumeroCalibracion;
     String aInstrumento;
-    String aFecha;
+    Date aFecha;
     String aMediciones;
 }
