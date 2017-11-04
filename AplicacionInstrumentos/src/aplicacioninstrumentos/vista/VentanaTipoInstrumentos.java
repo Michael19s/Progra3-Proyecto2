@@ -1,5 +1,7 @@
 package aplicacioninstrumentos.vista;
 
+import aplicacioninstrumentos.modelo.GestorTipoInstrumentos;
+import aplicacioninstrumentos.modelo.TipoInstrumento;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -19,10 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import modeloinstrumentos.modeloa.GestorInstrumentos;
-import modeloinstrumentos.modeloa.GestorTipoInstrumentos;
-import modeloinstrumentos.modeloa.Instrumento;
-import modeloinstrumentos.modeloa.TipoInstrumento;
 
 public class VentanaTipoInstrumentos extends JFrame
 {

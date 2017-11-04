@@ -1,5 +1,7 @@
 package aplicacioninstrumentos.vista;
 
+import aplicacioninstrumentos.modelo.GestorMedidas;
+import aplicacioninstrumentos.modelo.Medida;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -21,10 +23,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-import modeloinstrumentos.modeloa.GestorInstrumentos;
-import modeloinstrumentos.modeloa.GestorMedidas;
-import modeloinstrumentos.modeloa.Instrumento;
-import modeloinstrumentos.modeloa.Medida;
 
 public class VentanaMedidas  extends JFrame
 {
