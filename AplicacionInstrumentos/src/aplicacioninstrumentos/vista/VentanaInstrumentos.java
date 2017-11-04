@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -207,6 +209,24 @@ public class VentanaInstrumentos extends JFrame
         gbcCentral.weighty = 1.0;
         gbcCentral.insets = new Insets(6, 10, 11, 10);
         c.add(scpTabla, gbcCentral);
+        
+        txtBusqueda.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                try 
+                {
+                    tblBusqueda = new JTable(GestorInstrumentos.obtenerInstancia().obtenerTablaBusqueda((String)cmbBusqueda.getSelectedItem(), txtBusqueda.getText()), Instrumento.obtenerDescripcionTbl());
+                }
+                catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+                {
+                    System.err.printf(ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                scpTabla.setViewportView(tblBusqueda);
+            }
+        });
     }
     
     public void init()
@@ -236,6 +256,8 @@ public class VentanaInstrumentos extends JFrame
     private JScrollPane scpTabla;
     
     private JTable tblInstrumentos;
+    private JTable tblBusqueda;
+
     
     private JTextField txtBusqMaximo;
     private JTextField txtBusqMinimo;

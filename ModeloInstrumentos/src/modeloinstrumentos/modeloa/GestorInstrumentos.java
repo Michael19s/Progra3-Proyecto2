@@ -159,6 +159,64 @@ public class GestorInstrumentos
         return r;
     }
 
+    public List<Instrumento> buscar(String pFiltro, String pValor)
+    {
+        String SSQL;
+        List<Instrumento> lvLista = new ArrayList<>();
+        String lvCriterioBusqueda = "";
+        switch (pFiltro)
+        {
+            case "Numero de serie":
+                lvCriterioBusqueda = "NumeroSerie";
+                break;
+            case "Indice de tolerancia":
+                lvCriterioBusqueda = "Tolerancia";
+                break;
+            case "Tipo":
+            case "Descripcion":
+            case "Minimo":
+            case "Maximo":
+                lvCriterioBusqueda = pFiltro;
+                break;
+            default:
+                break;
+        }
+        SSQL = "SELECT NumeroSerie, Tipo, Descripcion, Minimo, Maximo, Tolerancia FROM instrumento WHERE "+ lvCriterioBusqueda + " LIKE '%" + pValor + "%';";
+        try 
+        {
+            try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); Statement lvPaso = lvConexion.createStatement(); ResultSet rs = lvPaso.executeQuery(SSQL)) 
+            {
+                while (rs.next()) 
+                {
+                    lvLista.add(new Instrumento(rs.getString("NumeroSerie"), rs.getString("Tipo"), rs.getString("Descripcion"), rs.getString("Minimo"), rs.getString("Maximo"), rs.getString("Tolerancia")));
+                }
+            }
+        }
+        catch (SQLException ex) 
+        {
+            System.err.printf("Excepción: '%s'%n", ex.getMessage());
+        }
+        return lvLista;
+    }
+    
+    public Object[][] obtenerTablaBusqueda(String pFiltro, String pValor)
+    {
+        List<Instrumento> lvInstrumentos = buscar(pFiltro, pValor);
+        Object[][] r = new Object[lvInstrumentos.size()][6];
+        int lvIndice = 0;
+        for (Instrumento lvInstrumento : lvInstrumentos)
+        {
+            r[lvIndice][0] = lvInstrumento.obtenerNumeroSerie();
+            r[lvIndice][1] = lvInstrumento.obtenerTipo();
+            r[lvIndice][2] = lvInstrumento.obtenerDescripcion();
+            r[lvIndice][3] = lvInstrumento.obtenerMinimo();
+            r[lvIndice][4] = lvInstrumento.obtenerMaximo();
+            r[lvIndice][5] = lvInstrumento.obtenerTolerancia();
+            lvIndice++;
+        }
+        return r;
+    }
+    
     private static final String BASE_DATOS = "instrumentos";
     private static final String USUARIO = "root";
     private static final String CLAVE = "";
