@@ -1,5 +1,6 @@
-package modeloinstrumentos.modeloa;
+package aplicacioninstrumentos.modelo;
 
+import aplicacioninstrumentos.DAL.GestorBaseDatos;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -8,7 +9,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import modeloinstrumentos.modelo.dao.GestorBaseDatos;
 
 public class GestorCalibracion 
 {

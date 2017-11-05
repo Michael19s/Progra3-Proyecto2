@@ -1,5 +1,6 @@
-package modeloinstrumentos.modeloa;
+package aplicacioninstrumentos.modelo;
 
+import aplicacioninstrumentos.DAL.GestorBaseDatos;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import modeloinstrumentos.modelo.dao.GestorBaseDatos;
 
 public class GestorTipoInstrumentos 
 {
