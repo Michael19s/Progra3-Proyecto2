@@ -1,12 +1,15 @@
 package aplicacioninstrumentos.vista;
 
+import aplicacioninstrumentos.modelo.Calibracion;
+import aplicacioninstrumentos.modelo.GestorCalibracion;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -14,11 +17,12 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.WindowConstants;
+
 
 public class VentanaCalibraciones extends JFrame
 {
@@ -40,25 +44,17 @@ public class VentanaCalibraciones extends JFrame
     
     private void ajustarComponentes(Container c)
     {
-        jPanel1 = new JPanel();
         pnlBotones = new JPanel();
+        
         btnAgregar = new JButton();
         btnEliminar = new JButton();
         btnModificar = new JButton();
         btnClonar = new JButton();
+        
         pnlBusqueda = new JPanel();
-        lblBuscar = new JLabel();
-        cmbBusqueda = new JComboBox<>();
-        txtBusqueda = new JTextField();
-        btnBuscar = new JButton();
-        lblBusquedaAdv = new JLabel();
-        cbxTipo = new JCheckBox();
-        cbxMinimo = new JCheckBox();
-        txtBusqTipo = new JTextField();
-        txtBusqMinimo = new JTextField();
-        jCheckBox1 = new JCheckBox();
-        jTextField1 = new JTextField();
+        
         scpTabla = new JScrollPane();
+        
         tblCalibraciones = new JTable();
 
         c.setLayout(new GridBagLayout());
@@ -105,7 +101,7 @@ public class VentanaCalibraciones extends JFrame
         gbc2.gridheight = 2;
         gbc2.anchor = GridBagConstraints.NORTHWEST;
         gbc2.insets = new Insets(12, 4, 0, 0);
-        String[] lvString = new String[] { "Numero Calibracion", "Instrumento", "Fecha", "Mediciones" };
+        String[] lvString = new String[] { "Numero de calibracion", "Instrumento", "Fecha", "Mediciones" };
         pnlBusqueda.add(cmbBusqueda = new JComboBox<>(lvString), gbc2);
         
         GridBagConstraints gbc3 = new GridBagConstraints();
@@ -126,115 +122,115 @@ public class VentanaCalibraciones extends JFrame
         gbc4.insets = new Insets(11, 14, 0, 0);
         pnlBusqueda.add(btnBuscar = new JButton("Buscar"), gbc4);
 
-        lblBusquedaAdv.setText("Busqueda avanzada:");
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(6, 10, 0, 0);
-        pnlBusqueda.add(lblBusquedaAdv, gridBagConstraints);
+        GridBagConstraints gbc5 = new GridBagConstraints();
+        gbc5.gridx = 0;
+        gbc5.gridy = 3;
+        gbc5.gridwidth = 2;
+        gbc5.anchor = GridBagConstraints.NORTHWEST;
+        gbc5.insets = new Insets(6, 10, 0, 0);
+        pnlBusqueda.add(lblBusquedaAdv = new JLabel("Busqueda avanzada:"), gbc5);
 
-        cbxTipo.setText("Instrumento");
-        cbxTipo.addActionListener(new event.ActionListener() {
-            public void actionPerformed(event.ActionEvent evt) {
-                cbxTipoActionPerformed(evt);
+        GridBagConstraints gbc6 = new GridBagConstraints();
+        gbc6.gridx = 3;
+        gbc6.gridy = 4;
+        gbc6.gridwidth = 5;
+        gbc6.gridheight = 2;
+        gbc6.anchor = GridBagConstraints.NORTHWEST;
+        gbc6.insets = new Insets(5, 2, 0, 0);
+        pnlBusqueda.add(cbxInstrumento = new JCheckBox("Instrumento"), gbc6);
+
+        GridBagConstraints gbc7 = new GridBagConstraints();
+        gbc7.gridx = 3;
+        gbc7.gridy = 6;
+        gbc7.gridwidth = 4;
+        gbc7.gridheight = 2;
+        gbc7.anchor = GridBagConstraints.NORTHWEST;
+        gbc7.insets = new Insets(3, 2, 0, 0);
+        pnlBusqueda.add(cbxFecha = new JCheckBox("Fecha"), gbc7);
+        
+        GridBagConstraints gbc8 = new GridBagConstraints();
+        gbc8.gridx = 11;
+        gbc8.gridy = 4;
+        gbc8.gridwidth = 10;
+        gbc8.ipadx = 156;
+        gbc8.anchor = GridBagConstraints.NORTHWEST;
+        gbc8.insets = new Insets(6, 2, 0, 0);
+        pnlBusqueda.add(txtBusqTipo = new JTextField(), gbc8);
+        
+        GridBagConstraints gbc9 = new GridBagConstraints();
+        gbc9.gridx = 7;
+        gbc9.gridy = 6;
+        gbc9.gridwidth = 14;
+        gbc9.ipadx = 186;
+        gbc9.anchor = GridBagConstraints.NORTHWEST;
+        gbc9.insets = new Insets(4, 2, 0, 0);
+        pnlBusqueda.add(txtBusqMinimo = new JTextField(), gbc9);
+
+        GridBagConstraints gbc10 = new GridBagConstraints();
+        gbc10.gridx = 3;
+        gbc10.gridy = 8;
+        gbc10.gridwidth = 9;
+        gbc10.gridheight = 2;
+        gbc10.anchor = GridBagConstraints.NORTHWEST;
+        gbc10.insets = new Insets(3, 2, 9, 0);
+        pnlBusqueda.add(cbxMediciones = new JCheckBox("Numero de Mediciones"), gbc10);
+        
+        GridBagConstraints gbc11 = new GridBagConstraints();
+        gbc11.gridx = 20;
+        gbc11.gridy = 8;
+        gbc11.ipadx = 108;
+        gbc11.anchor = GridBagConstraints.NORTHWEST;
+        gbc11.insets = new Insets(4, 2, 0, 0);
+        pnlBusqueda.add(jTextField1 = new JTextField(), gbc11);
+
+        GridBagConstraints gbcBusqueda = new GridBagConstraints();
+        gbcBusqueda.gridx = 1;
+        gbcBusqueda.gridy = 2;
+        gbcBusqueda.anchor = GridBagConstraints.NORTHWEST;
+        gbcBusqueda.insets = new Insets(6, 10, 0, 0);
+        getContentPane().add(pnlBusqueda, gbcBusqueda);
+
+         try 
+        {
+            tblCalibraciones = new JTable(GestorCalibracion.obtenerInstancia().obtenerTabla(), Calibracion.obtenerDescripcion());
+        }
+        catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+        {
+            System.err.printf(ex.getMessage());
+            JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        scpTabla.setViewportView(tblCalibraciones);
+
+        GridBagConstraints gbcTabla = new GridBagConstraints();
+        gbcTabla.gridx = 1;
+        gbcTabla.gridy = 3;
+        gbcTabla.gridwidth = 3;
+        gbcTabla.fill = GridBagConstraints.BOTH;
+        gbcTabla.ipadx = 754;
+        gbcTabla.ipady = 115;
+        gbcTabla.anchor = GridBagConstraints.NORTHWEST;
+        gbcTabla.weightx = 1.0;
+        gbcTabla.weighty = 1.0;
+        gbcTabla.insets = new Insets(6, 10, 11, 10);
+        getContentPane().add(scpTabla, gbcTabla);
+        
+        txtBusqueda.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                try 
+                {
+                    tblBusqueda = new JTable(GestorCalibracion.obtenerInstancia().obtenerTablaBusqueda((String)cmbBusqueda.getSelectedItem(), txtBusqueda.getText()), Calibracion.obtenerDescripcion());
+                }
+                catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+                {
+                    System.err.printf(ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                scpTabla.setViewportView(tblBusqueda);
             }
         });
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(5, 2, 0, 0);
-        pnlBusqueda.add(cbxTipo, gridBagConstraints);
-
-        cbxMinimo.setText("Fecha");
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 4;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(3, 2, 0, 0);
-        pnlBusqueda.add(cbxMinimo, gridBagConstraints);
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 11;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 10;
-        gridBagConstraints.ipadx = 156;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(6, 2, 0, 0);
-        pnlBusqueda.add(txtBusqTipo, gridBagConstraints);
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 14;
-        gridBagConstraints.ipadx = 186;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(4, 2, 0, 0);
-        pnlBusqueda.add(txtBusqMinimo, gridBagConstraints);
-
-        jCheckBox1.setText("Numero de Mediciones");
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.gridwidth = 9;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(3, 2, 9, 0);
-        pnlBusqueda.add(jCheckBox1, gridBagConstraints);
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 20;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.ipadx = 108;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(4, 2, 0, 0);
-        pnlBusqueda.add(jTextField1, gridBagConstraints);
-
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(6, 10, 0, 0);
-        getContentPane().add(pnlBusqueda, gridBagConstraints);
-
-        tblInstrumentos.setModel(new table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Numero de calibracion", "Instrumento", "Numero de mediciones"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        scpTabla.setViewportView(tblInstrumentos);
-
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 754;
-        gridBagConstraints.ipady = 115;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new Insets(6, 10, 11, 10);
-        getContentPane().add(scpTabla, gridBagConstraints);
-
-        pack();
     }
     
     public void init()
@@ -248,9 +244,9 @@ public class VentanaCalibraciones extends JFrame
     private JButton btnEliminar;
     private JButton btnModificar;
     
-    private JCheckBox cbxMinimo;
-    private JCheckBox cbxTipo;
-    private JCheckBox jCheckBox1;
+    private JCheckBox cbxFecha;
+    private JCheckBox cbxInstrumento;
+    private JCheckBox cbxMediciones;
 
     
     private JComboBox<String> cmbBusqueda;
@@ -266,6 +262,7 @@ public class VentanaCalibraciones extends JFrame
     private JScrollPane scpTabla;
     
     private JTable tblCalibraciones;
+    private JTable tblBusqueda;
     
     private JTextField txtBusqMinimo;
     private JTextField txtBusqTipo;

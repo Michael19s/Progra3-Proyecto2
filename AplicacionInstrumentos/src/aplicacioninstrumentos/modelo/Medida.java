@@ -1,4 +1,4 @@
-package modeloinstrumentos.modeloa;
+package aplicacioninstrumentos.modelo;
 
 public class Medida
 {
