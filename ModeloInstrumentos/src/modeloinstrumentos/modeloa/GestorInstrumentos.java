@@ -223,7 +223,17 @@ public class GestorInstrumentos
         }
         return r;
     }
+      //metodo que retorna la verdadero si la serie ya se ingreso 
     
+    public boolean ingresaSerie(String  pSerie){
+        boolean lvRespuesta=false;
+        List<Instrumento> list= listaInstrumentos();
+        for(Instrumento lvIntrumeto : list){
+           if(lvIntrumeto.obtenerNumeroSerie() == null ? pSerie == null : lvIntrumeto.obtenerNumeroSerie().equals(pSerie))
+               lvRespuesta=true;
+        }
+        return lvRespuesta;
+    }
     private static final String BASE_DATOS = "instrumentos";
     private static final String USUARIO = "root";
     private static final String CLAVE = "";
