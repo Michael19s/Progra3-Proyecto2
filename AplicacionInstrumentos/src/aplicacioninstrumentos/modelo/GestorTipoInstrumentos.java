@@ -135,25 +135,8 @@ public class GestorTipoInstrumentos
         return lvLista;
     }
 
-    public Object[][] obtenerTabla()
+    private String obtenerCriterioBusqueda(String pFiltro)
     {
-        List<TipoInstrumento> lvTipoInstrumentos = listaTipoInstrumentos();
-        Object[][] r = new Object[lvTipoInstrumentos.size()][3];
-        int lvIndice = 0;
-        for (TipoInstrumento lvTipoInstrumento : lvTipoInstrumentos)
-        {
-            r[lvIndice][0] = lvTipoInstrumento.obtenerCodigo();
-            r[lvIndice][1] = lvTipoInstrumento.obtenerNombre();
-            r[lvIndice][2] = lvTipoInstrumento.obtenerUnidadMedicion();
-            lvIndice++;
-        }
-        return r;
-    }
-
-        public List<TipoInstrumento> buscar(String pFiltro, String pValor)
-    {
-        String CMD_BUSCAR;
-        List<TipoInstrumento> lvLista = new ArrayList<>();
         String lvCriterioBusqueda = "";
         switch (pFiltro)
         {
@@ -167,6 +150,15 @@ public class GestorTipoInstrumentos
             default:
                 break;
         }
+        return lvCriterioBusqueda;
+    }
+    
+    public List<TipoInstrumento> buscar(String pFiltro, String pValor)
+    {
+        String CMD_BUSCAR;
+        List<TipoInstrumento> lvLista = new ArrayList<>();
+        String lvCriterioBusqueda = obtenerCriterioBusqueda(pFiltro);
+        
         CMD_BUSCAR = "SELECT * FROM tipoinstrumento WHERE "+ lvCriterioBusqueda + " LIKE '%" + pValor + "%';";
         try 
         {
@@ -185,12 +177,49 @@ public class GestorTipoInstrumentos
         return lvLista;
     }
     
-    public Object[][] obtenerTablaBusqueda(String pFiltro, String pValor)
+    public List<TipoInstrumento> buscarAvanzado(String pNombre, String pUnidadMedicion)
     {
-        List<TipoInstrumento> lvTipoInstrumentos = buscar(pFiltro, pValor);
-        Object[][] r = new Object[lvTipoInstrumentos.size()][3];
+        String CMD_BUSCAR = obtenerComandoBusquedaAvanzada(pNombre, pUnidadMedicion);
+        List<TipoInstrumento> lvLista = new ArrayList<>();
+        if(!"".equals(CMD_BUSCAR))
+        {
+            try 
+            {
+                try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); Statement lvPaso = lvConexion.createStatement(); ResultSet rs = lvPaso.executeQuery(CMD_BUSCAR)) 
+                {
+                    while (rs.next()) 
+                    {
+                        lvLista.add(new TipoInstrumento(rs.getString("Codigo"), rs.getString("Nombre"), rs.getString("UnidadMedicion")));
+                    }
+                }
+            }
+            catch (SQLException ex) 
+            {
+                System.err.printf("Excepción: '%s'%n", ex.getMessage());
+            }
+        }
+        return lvLista;
+    }
+    
+     private String obtenerComandoBusquedaAvanzada(String pNombre, String pUnidadMedicion)
+    {
+        String CMD_BUSCAR = "";
+            if(!"".equals(pNombre) && !"".equals(pUnidadMedicion))
+                CMD_BUSCAR = "SELECT * FROM tipoinstrumento WHERE Nombre LIKE '%" + pNombre + "%' AND UnidadMedicion LIKE '%" + pUnidadMedicion + "%';";
+            else
+                if(!"".equals(pNombre) && "".equals(pUnidadMedicion))
+                    CMD_BUSCAR = "SELECT * FROM tipoinstrumento WHERE Nombre LIKE '%" + pNombre + "%';";
+                else
+                    if("".equals(pNombre) && !"".equals(pUnidadMedicion))
+                        CMD_BUSCAR = "SELECT * FROM tipoinstrumento WHERE UnidadMedicion LIKE '%" + pUnidadMedicion + "%';";
+        return CMD_BUSCAR;
+    }
+    
+    private Object[][] obtenerTablaX(List<TipoInstrumento> pTipoInstrumentos)
+    {
         int lvIndice = 0;
-        for (TipoInstrumento lvTipoInstrumento : lvTipoInstrumentos)
+        Object[][] r = new Object[pTipoInstrumentos.size()][3];
+        for (TipoInstrumento lvTipoInstrumento : pTipoInstrumentos)
         {
             r[lvIndice][0] = lvTipoInstrumento.obtenerCodigo();
             r[lvIndice][1] = lvTipoInstrumento.obtenerNombre();
@@ -200,12 +229,30 @@ public class GestorTipoInstrumentos
         return r;
     }
     
+    public Object[][] obtenerTabla()
+    {
+        List<TipoInstrumento> lvTipoInstrumentos = listaTipoInstrumentos();
+        return obtenerTablaX(lvTipoInstrumentos);
+    }
+    
+    public Object[][] obtenerTablaBusqueda(String pFiltro, String pValor)
+    {
+        List<TipoInstrumento> lvTipoInstrumentos = buscar(pFiltro, pValor);
+        return obtenerTablaX(lvTipoInstrumentos);
+    }
+    
+    public Object[][] obtenerTablaBusquedaAvanzada(String pNombre, String pUnidadMedicion)
+    {
+        List<TipoInstrumento> lvTipoInstrumentos = buscarAvanzado(pNombre, pUnidadMedicion);
+        return obtenerTablaX(lvTipoInstrumentos);
+    }
+    
     private static final String BASE_DATOS = "instrumentos";
     private static final String USUARIO = "root";
     private static final String CLAVE = "";
 
     private static final String CMD_LISTAR = "SELECT Codigo, Nombre, UnidadMedicion FROM tipoinstrumento ORDER BY Codigo;";
-    private static final String CMD_AGREGAR = "INSERT INTO tipoinstrumento VALUES (?, ?, ?, ?);";
+    private static final String CMD_AGREGAR = "INSERT INTO tipoinstrumento VALUES (?, ?, ?);";
     private static final String CMD_RECUPERAR = "SELECT Codigo, Nombre, UnidadMedicion FROM tipoinstrumento WHERE Codigo= ?;";
     private static final String CMD_ACTUALIZAR = "UPDATE tipoinstrumento SET Nombre = ?, UnidadMedicion= ? WHERE Codigo= ?;";
     private static final String CMD_ELIMINAR = "DELETE FROM tipoinstrumento WHERE Codigo = ?;";
@@ -213,4 +260,3 @@ public class GestorTipoInstrumentos
     private static GestorTipoInstrumentos aInstancia = null;
     private final GestorBaseDatos aBaseDatos;
 }
-

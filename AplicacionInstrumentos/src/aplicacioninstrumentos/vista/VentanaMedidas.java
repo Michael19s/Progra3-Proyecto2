@@ -1,21 +1,29 @@
 package aplicacioninstrumentos.vista;
 
+import aplicacioninstrumentos.Control.ControlAplicacion;
 import aplicacioninstrumentos.modelo.GestorMedidas;
+import aplicacioninstrumentos.modelo.GestorTipoInstrumentos;
 import aplicacioninstrumentos.modelo.Medida;
+import aplicacioninstrumentos.modelo.TipoInstrumento;
+import aplicacioninstrumentos.vista.VentanaInclusionMedidas.modoMedidas;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -23,13 +31,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
+import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
-public class VentanaMedidas  extends JFrame
+public class VentanaMedidas  extends JFrame implements Observer
 {
 
-    public VentanaMedidas() 
+    public VentanaMedidas(ControlAplicacion pNuevoGestor) 
     {
         super("Mantenimiento de medidas");
+        aGestorPrincipal = pNuevoGestor;
         configurar();
     }
     
@@ -38,9 +48,19 @@ public class VentanaMedidas  extends JFrame
         ajustarComponentes(getContentPane());
         setResizable(false);
         setSize(920, 400);
-        setMinimumSize(new Dimension(400, 300));
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        
+        addWindowListener(new WindowAdapter() 
+        {
+            @Override
+            public void windowClosing(WindowEvent e) 
+            {
+                System.out.println("Eliminando observador..");
+                aGestorPrincipal.eliminarRegistro(VentanaMedidas.this);
+                dispose();
+            }
+        });
     }
     
     private void ajustarComponentes(Container c)
@@ -101,7 +121,7 @@ public class VentanaMedidas  extends JFrame
         gbc2.gridheight = 2;
         gbc2.anchor = GridBagConstraints.NORTHWEST;
         gbc2.insets = new Insets(17, 4, 0, 0);
-        String[] lvString = new String[] { "Numero de medida", "Numero de referencia", "Numero de lectura" };
+        String[] lvString = new String[] { "Numero de medida", "Numero de referencia", "Numero de lectura"};
         pnlBusqueda.add(cmbBusqueda = new JComboBox<>(lvString), gbc2);
         
         GridBagConstraints gbc3 = new GridBagConstraints();
@@ -146,7 +166,7 @@ public class VentanaMedidas  extends JFrame
         gbc7.gridheight = 2;
         gbc7.anchor = GridBagConstraints.NORTHWEST;
         gbc7.insets = new Insets(3, 2, 11, 0);
-        pnlBusqueda.add(cbxMinimo = new JCheckBox("Numero de lectura"), gbc7);
+        pnlBusqueda.add(cbxLectura = new JCheckBox("Numero de lectura"), gbc7);
         
         GridBagConstraints gbc8= new GridBagConstraints();
         gbc8.gridx = 11;
@@ -154,7 +174,7 @@ public class VentanaMedidas  extends JFrame
         gbc8.ipadx = 114;
         gbc8.anchor = GridBagConstraints.NORTHWEST;
         gbc8.insets = new Insets(6, 2, 0, 0);
-        pnlBusqueda.add(txtBusqTipo = new JTextField(), gbc8);
+        pnlBusqueda.add(txtBusqReferencia = new JTextField(), gbc8);
         
         GridBagConstraints gbc9 = new GridBagConstraints();
         gbc9.gridx = 11;
@@ -162,7 +182,7 @@ public class VentanaMedidas  extends JFrame
         gbc9.ipadx = 114;
         gbc9.anchor = GridBagConstraints.NORTHWEST;
         gbc9.insets = new Insets(4, 2, 0, 0);
-        pnlBusqueda.add(txtBusqMinimo = new JTextField(), gbc9);
+        pnlBusqueda.add(txtBusqLectura = new JTextField(), gbc9);
 
         GridBagConstraints gbcBusqueda = new GridBagConstraints();
         gbcBusqueda.gridx = 1;
@@ -173,29 +193,7 @@ public class VentanaMedidas  extends JFrame
         gbcBusqueda.insets = new Insets(6, 10, 0, 0);
         c.add(pnlBusqueda, gbcBusqueda);
 
-        try 
-        {
-            tblMedidas = new JTable(GestorMedidas.obtenerInstancia().obtenerTabla(), Medida.obtenerDescripcion());
-        }
-        catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
-        {
-            System.err.printf(ex.getMessage());
-            JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        scpTabla.setViewportView(tblMedidas);
-
-        GridBagConstraints gbcTabla= new GridBagConstraints();
-        gbcTabla.gridx = 1;
-        gbcTabla.gridy = 3;
-        gbcTabla.gridwidth = 3;
-        gbcTabla.fill = java.awt.GridBagConstraints.BOTH;
-        gbcTabla.ipadx = 754;
-        gbcTabla.ipady = 133;
-        gbcTabla.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gbcTabla.weightx = 1.0;
-        gbcTabla.weighty = 1.0;
-        gbcTabla.insets = new java.awt.Insets(6, 10, 11, 10);
-        c.add(scpTabla, gbcTabla);
+        mostrarTabla(c);
         
         txtBusqueda.addKeyListener(new KeyAdapter() 
         {
@@ -214,12 +212,232 @@ public class VentanaMedidas  extends JFrame
                 scpTabla.setViewportView(tblBusqueda);
             }
         });
+        
+        cbxReferencia.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e) 
+            {
+                if(cbxReferencia.isSelected())
+                    busquedaAvanzada();
+                else
+                    mostrarTabla(c);
+            }
+        });
+        
+        cbxLectura.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e) 
+            {
+                if(cbxLectura.isSelected())
+                    busquedaAvanzada();
+                else
+                    mostrarTabla(c);
+            }
+        });
+        
+        txtBusqReferencia.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e) 
+            {
+                if(cbxReferencia.isSelected())
+                    busquedaAvanzada();
+            }
+        });
+        
+        txtBusqLectura.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e) 
+            {
+                if(cbxLectura.isSelected())
+                    busquedaAvanzada();
+            }
+        });
+        
+        btnAgregar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                agregar();
+            }
+        });
+        
+        btnEliminar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                eliminar();
+            }
+        });
+        
+        btnModificar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                modificar();
+            }
+        });
+        
+        btnClonar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                clonar();
+            }
+        });
+    }
+    
+        
+    private void mostrarTabla(Container c)
+    {
+        if(aCalibracionXMedida != 0)
+        {
+            try 
+            {
+                tblMedidas = new JTable(GestorMedidas.obtenerInstancia().obtenerTablaBusqueda("NumeroCalibracion", String.valueOf(aCalibracionXMedida)), Medida.obtenerDescripcion());
+            }
+            catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+            {
+                System.err.printf(ex.getMessage());
+                JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            scpTabla.setViewportView(tblMedidas);
+        }
+        else
+        {
+            try 
+            {
+                tblMedidas = new JTable(GestorMedidas.obtenerInstancia().obtenerTabla(), Medida.obtenerDescripcion());
+            }
+            catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+            {
+                System.err.printf(ex.getMessage());
+                JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            scpTabla.setViewportView(tblMedidas);
+        }
+            
+        GridBagConstraints gbcTabla= new GridBagConstraints();
+        gbcTabla.gridx = 1;
+        gbcTabla.gridy = 3;
+        gbcTabla.gridwidth = 3;
+        gbcTabla.fill = java.awt.GridBagConstraints.BOTH;
+        gbcTabla.ipadx = 754;
+        gbcTabla.ipady = 133;
+        gbcTabla.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gbcTabla.weightx = 1.0;
+        gbcTabla.weighty = 1.0;
+        gbcTabla.insets = new java.awt.Insets(6, 10, 11, 10);
+        c.add(scpTabla, gbcTabla);
+    }
+    
+    private void busquedaAvanzada()
+    {
+            try 
+            {
+                tblBusqueda = new JTable(GestorMedidas.obtenerInstancia().obtenerTablaBusquedaAvanzada(txtBusqReferencia.getText(), txtBusqLectura.getText()), Medida.obtenerDescripcion());
+            }
+            catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+            {
+                System.err.printf(ex.getMessage());
+                JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            scpTabla.setViewportView(tblBusqueda); 
+    }
+    
+      private void agregar()
+    {
+        aGestorPrincipal.mostrarVentanaInclusionMedidas(VentanaInclusionMedidas.modoMedidas.agregar, VentanaMedidas.this, aCalibracionXMedida);
+    }
+    
+    private void eliminar()
+    {
+        int lvFilaSeleccionada = tblMedidas.getSelectedRow();
+        if(lvFilaSeleccionada == -1)
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un registro..", "Advertencia",JOptionPane.WARNING_MESSAGE);
+        else
+        {
+            Object lvNumero = tblMedidas.getValueAt(lvFilaSeleccionada, 0);
+            aGestorPrincipal.eliminarTipoInstrumeto((String)lvNumero);
+        }
+    }
+    
+    private void modificar()
+    {
+        int lvFilaSeleccionada = tblMedidas.getSelectedRow();
+        if(lvFilaSeleccionada == -1)
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un registro..", "Advertencia",JOptionPane.WARNING_MESSAGE);
+        else
+        {
+            Object lvNumero = tblMedidas.getValueAt(lvFilaSeleccionada, 0);
+            Medida lvMedida = aGestorPrincipal.recuperarMedida((int)lvNumero);
+            aGestorPrincipal.mostrarVentanaInclusionMedidas(modoMedidas.modificar, VentanaMedidas.this,(int)lvNumero ,lvMedida.obtenerReferencia(), lvMedida.obtenerLectura(), aCalibracionXMedida);
+        }
+    }
+    
+    private void clonar()
+    {
+        int lvFilaSeleccionada = tblMedidas.getSelectedRow();
+        if(lvFilaSeleccionada == -1)
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un registro..", "Advertencia",JOptionPane.WARNING_MESSAGE);
+        else
+        {
+            Object lvNumero = tblMedidas.getValueAt(lvFilaSeleccionada, 0);
+            Medida lvMedida = aGestorPrincipal.recuperarMedida((int)lvNumero);
+            aGestorPrincipal.mostrarVentanaInclusionMedidas(modoMedidas.clonar, VentanaMedidas.this, (int)lvNumero, lvMedida.obtenerReferencia(), lvMedida.obtenerLectura(), aCalibracionXMedida);
+        }
     }
 
-    public void init()
+    public void establecerNumeroCalibracion(int pNumero)
     {
+        aCalibracionXMedida = pNumero;
+    }
+    
+    public void init(JFrame pBase)
+    {
+        setLocationRelativeTo(pBase);
         setVisible(true);
     }
+    
+    @Override
+    public void update(Observable pReferencia, Object e)
+    {
+        if(aCalibracionXMedida != 0)
+        {
+            try 
+            {
+                tblMedidas = new JTable(GestorMedidas.obtenerInstancia().obtenerTablaBusqueda("NumeroCalibracion", String.valueOf(aCalibracionXMedida)), Medida.obtenerDescripcion());
+            }
+            catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+            {
+                System.err.printf(ex.getMessage());
+                JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            scpTabla.setViewportView(tblMedidas);
+        }
+        else
+        {
+            try 
+            {
+                tblMedidas = new JTable(GestorMedidas.obtenerInstancia().obtenerTabla(), Medida.obtenerDescripcion());
+            }
+            catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+            {
+                System.err.printf(ex.getMessage());
+                JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            scpTabla.setViewportView(tblMedidas);
+        }
+    }
+    
+    private static ControlAplicacion aGestorPrincipal;
     
     private JButton btnAgregar;
     private JButton btnBuscar;
@@ -227,7 +445,7 @@ public class VentanaMedidas  extends JFrame
     private JButton btnEliminar;
     private JButton btnModificar;
     
-    private JCheckBox cbxMinimo;
+    private JCheckBox cbxLectura;
     private JCheckBox cbxReferencia;
     private JComboBox<String> cmbBusqueda;
     
@@ -242,7 +460,9 @@ public class VentanaMedidas  extends JFrame
     private JTable tblMedidas;
     private JTable tblBusqueda;
     
-    private JTextField txtBusqMinimo;
-    private JTextField txtBusqTipo;
+    private JTextField txtBusqLectura;
+    private JTextField txtBusqReferencia;
     private JTextField txtBusqueda;
+    
+    private int aCalibracionXMedida = 0;
 }

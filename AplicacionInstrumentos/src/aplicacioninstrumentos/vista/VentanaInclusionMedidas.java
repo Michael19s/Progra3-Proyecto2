@@ -1,6 +1,8 @@
 package aplicacioninstrumentos.vista;
 
 import aplicacioninstrumentos.Control.ControlAplicacion;
+import aplicacioninstrumentos.modelo.GestorCalibracion;
+import aplicacioninstrumentos.modelo.GestorInstrumentos;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -12,6 +14,7 @@ import java.awt.event.WindowEvent;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -19,21 +22,20 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
-
-public class SubVentanaTipoInstrumento extends JFrame implements Observer
+public class VentanaInclusionMedidas extends JFrame implements Observer
 {
-    public SubVentanaTipoInstrumento(ControlAplicacion pNuevoGestor, modo pModo) 
+        public VentanaInclusionMedidas(ControlAplicacion pNuevoGestor, modoMedidas pModo) 
     {
-        super("Inclusion tipo de instrumento");
+        super("Agregar medida");
         aGestorPrincipal = pNuevoGestor;
         configurar(pModo);
     }
     
-    private void configurar(modo pModo)
+    private void configurar(modoMedidas pModo)
     {
         ajustarComponentes(getContentPane(), pModo);
         setResizable(false);
-        setSize(300, 200);
+        setSize(520, 250);
         
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         
@@ -43,13 +45,13 @@ public class SubVentanaTipoInstrumento extends JFrame implements Observer
             public void windowClosing(WindowEvent e) 
             {
                 System.out.println("Eliminando observador..");
-                aGestorPrincipal.eliminarRegistro(SubVentanaTipoInstrumento.this);
+                aGestorPrincipal.eliminarRegistro(VentanaInclusionMedidas.this);
                 dispose();
             }
         });
     }
     
-    private void ajustarComponentes(Container c, modo pModo)
+    private void ajustarComponentes(Container c, modoMedidas pModo)
     {
         GridBagConstraints gridBagConstraints;
         
@@ -69,7 +71,7 @@ public class SubVentanaTipoInstrumento extends JFrame implements Observer
             default:
                 break;
         }
-
+        
         pnlDatos = new JPanel();
         pnlBotones = new JPanel();
 
@@ -77,63 +79,65 @@ public class SubVentanaTipoInstrumento extends JFrame implements Observer
 
         pnlDatos.setLayout(new GridBagLayout());
 
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(14, 10, 0, 0);
-        pnlDatos.add(lblCodigo = new JLabel("Codigo:"), gridBagConstraints);
-        
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 4;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.ipadx = 204;
-        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(11, 4, 0, 10);
-        pnlDatos.add(txtCodigo = new JTextField(), gridBagConstraints);
+        pnlDatos.setLayout(new GridBagLayout());
 
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new Insets(9, 10, 0, 0);
-        pnlDatos.add(lblNombre = new JLabel("Nombre:"), gridBagConstraints);
+        pnlDatos.add(lblReferencia = new JLabel("Numero de referencia:"), gridBagConstraints);
         
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.ipadx = 204;
         gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(6, 4, 0, 10);
-        pnlDatos.add(txtNombre = new JTextField(), gridBagConstraints);
+        gridBagConstraints.insets = new Insets(6, 3, 0, 0);
+        pnlDatos.add(txtReferencia = new JTextField(), gridBagConstraints);
 
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(9, 10, 0, 0);
-        pnlDatos.add(lblUnidadMedida = new JLabel("Unidad de medida:"), gridBagConstraints);
+        gridBagConstraints.insets = new Insets(12, 10, 11, 0);
+        pnlDatos.add(lblLectura = new JLabel("Numero de lectura:"), gridBagConstraints);
         
         gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.ipadx = 156;
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.ipadx = 220;
         gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(6, 4, 11, 10);
-        pnlDatos.add(txtUnidadMedida = new JTextField(), gridBagConstraints);
+        gridBagConstraints.insets = new Insets(6, 4, 11, 0);
+        pnlDatos.add(txtLectura = new JTextField(), gridBagConstraints);
+
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(20, 10, 0, 0);
+        pnlDatos.add(lblCalibracion = new JLabel("Numero de calibracion:"), gridBagConstraints);
+
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 28;
+        gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new Insets(17, 4, 0, 0);
+        pnlDatos.add(cmbCalibracion = new JComboBox<>(), gridBagConstraints);
+        llenarComboCalibracion();
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(11, 10, 0, 10);
+        gridBagConstraints.insets = new Insets(99, 29, 0, 29);
         c.add(pnlDatos, gridBagConstraints);
 
         pnlBotones.add(btnAceptar = new JButton(lvTxtBotonAceptar));
@@ -143,9 +147,9 @@ public class SubVentanaTipoInstrumento extends JFrame implements Observer
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.ipadx = 114;
+        gridBagConstraints.ipadx = 181;
         gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new Insets(6, 10, 11, 10);
+        gridBagConstraints.insets = new Insets(6, 29, 99, 29);
         c.add(pnlBotones, gridBagConstraints);
         
         //Eventos
@@ -157,7 +161,7 @@ public class SubVentanaTipoInstrumento extends JFrame implements Observer
                 aceptar(pModo);
             }
         });
-        
+
         btnCancelar.addMouseListener(new MouseAdapter() 
         {
             @Override
@@ -168,28 +172,49 @@ public class SubVentanaTipoInstrumento extends JFrame implements Observer
         });
     }
     
-    public void aceptar(modo pModo)
+    private void llenarComboCalibracion()
+    {
+        Object[][] lvTablaCalibracion = null;
+        try
+        {
+            lvTablaCalibracion = GestorCalibracion.obtenerInstancia().obtenerTabla();
+        } 
+        catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex)
+        {
+            
+        }
+        
+        if(lvTablaCalibracion.length != 0)
+            for(int i = 0; i < lvTablaCalibracion.length; i++)
+            {
+                int lvItem = (int)lvTablaCalibracion[i][0];
+                cmbCalibracion.addItem(String.valueOf(lvItem));
+
+            }
+    }
+    
+    public void aceptar(modoMedidas pModo)
     {
         switch(pModo)
         {
             case agregar:
             case clonar:
-                if(aGestorPrincipal.agregarTipoInstrumeto(txtCodigo.getText(), txtNombre.getText(), txtUnidadMedida.getText()))
+                if(aGestorPrincipal.agregarMedida(0, Integer.parseInt(txtReferencia.getText()), Integer.parseInt((txtLectura.getText())), aNumeroCalibracion))
                 {
-                     aGestorPrincipal.eliminarRegistro(SubVentanaTipoInstrumento.this);
+                     aGestorPrincipal.eliminarRegistro(VentanaInclusionMedidas.this);
                     dispose();
                 }
                 else
-                    JOptionPane.showMessageDialog(null, "El tipo ya fue ingresado..", "Error",JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "La medida ya fue ingresada..", "Error",JOptionPane.ERROR_MESSAGE);
                 break;
             case modificar:
-                if(aGestorPrincipal.modificarTipoInstrumento(txtCodigo.getText(), txtNombre.getText(), txtUnidadMedida.getText()))
+                if(aGestorPrincipal.modificarMedida(aNumeroAModificar, Integer.parseInt(txtReferencia.getText()), Integer.parseInt(txtLectura.getText()), aNumeroCalibracion))
                 {
-                     aGestorPrincipal.eliminarRegistro(SubVentanaTipoInstrumento.this);
+                     aGestorPrincipal.eliminarRegistro(VentanaInclusionMedidas.this);
                     dispose();
                 }
                 else
-                    JOptionPane.showMessageDialog(null, "El tipo no se pudo modificar..", "Error",JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "El instrumento no se pudo modificar..", "Error",JOptionPane.ERROR_MESSAGE);
                 break;
         }
     }
@@ -199,21 +224,22 @@ public class SubVentanaTipoInstrumento extends JFrame implements Observer
         dispose();
     }
     
-    public void modificarValoresTextos(modo pModo, String pCodigo, String pNombre, String pUnidadMedicion)
+    public void modificarValoresTextos(modoMedidas pModo,int pNumero, int pReferencia, int pLectura)
     {
         switch(pModo)
         {
             case modificar:
-                txtCodigo.setText(pCodigo);
-                txtCodigo.setEditable(false);
-                txtCodigo.setEnabled(false);
-                //------------------------------
-                txtNombre.setText(pNombre);
-                txtUnidadMedida.setText(pUnidadMedicion);
             case clonar:
-                txtNombre.setText(pNombre);
-                txtUnidadMedida.setText(pUnidadMedicion);
+                cmbCalibracion.setSelectedItem(aNumeroCalibracion);
+                txtReferencia.setText(String.valueOf(pReferencia));
+                txtLectura.setText(String.valueOf(pLectura));
+                aNumeroAModificar = pNumero;
         }
+    }
+    
+    public void esablecerNumeroCalibracion(int pNumero)
+    {
+        aNumeroCalibracion = pNumero;
     }
     
     public void init(JFrame pBase)
@@ -228,24 +254,31 @@ public class SubVentanaTipoInstrumento extends JFrame implements Observer
         
     }
     
-    private static ControlAplicacion aGestorPrincipal;
-
-    public enum modo
+     public enum modoMedidas
     {
         agregar,
         modificar,
         clonar
     };
     
+    private static ControlAplicacion aGestorPrincipal;
+    
+    
     private JButton btnAceptar;
     private JButton btnCancelar;
-    private JLabel lblCodigo;
-    private JLabel lblNombre;
-    private JLabel lblUnidadMedida;
+    
+    private JLabel lblReferencia;
+    private JLabel lblLectura;
+    
     private JPanel pnlBotones;
     private JPanel pnlDatos;
-    private JTextField txtCodigo;
-    private JTextField txtNombre;
-    private JTextField txtUnidadMedida;
- 
+    
+    private JTextField txtReferencia;
+    private JTextField txtLectura;
+    
+    private int aNumeroCalibracion;
+    private int aNumeroAModificar;
+    
+    private JComboBox<String> cmbCalibracion;
+    private JLabel lblCalibracion;
 }

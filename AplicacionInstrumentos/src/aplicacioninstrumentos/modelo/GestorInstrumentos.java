@@ -140,31 +140,10 @@ public class GestorInstrumentos
         }
         return lvLista;
     }
-    
-    public Object[][] obtenerTabla()
-    {
-        List<Instrumento> lvInstrumentos = listaInstrumentos();
-        Object[][] r = new Object[lvInstrumentos.size()][6];
-        int lvIndice = 0;
-        for (Instrumento lvInstrumento : lvInstrumentos)
-        {
-            r[lvIndice][0] = lvInstrumento.obtenerNumeroSerie();
-            r[lvIndice][1] = lvInstrumento.obtenerTipo();
-            r[lvIndice][2] = lvInstrumento.obtenerDescripcion();
-            r[lvIndice][3] = lvInstrumento.obtenerMinimo();
-            r[lvIndice][4] = lvInstrumento.obtenerMaximo();
-            r[lvIndice][5] = lvInstrumento.obtenerTolerancia();
-            lvIndice++;
-        }
-        return r;
-    }
 
-    public List<Instrumento> buscar(String pFiltro, String pValor)
+    private String obtenerCriterioBusqueda(String pFiltro)
     {
-        String CMD_BUSCAR;
-        List<Instrumento> lvLista = new ArrayList<>();
         String lvCriterioBusqueda = "";
-        boolean esString = true;
         switch (pFiltro)
         {
             case "Numero de serie":
@@ -172,20 +151,26 @@ public class GestorInstrumentos
                 break;
             case "Indice de tolerancia":
                 lvCriterioBusqueda = "Tolerancia";
-                esString = false;
                 break;
             case "Tipo":
             case "Descripcion":
-                lvCriterioBusqueda = pFiltro;
             case "Minimo":
             case "Maximo":
-                esString = false;
                 lvCriterioBusqueda = pFiltro;
                 break;
             default:
                 break;
         }
-        if((esString)||(pValor.equals("")))
+        return lvCriterioBusqueda;
+    }
+    
+    public List<Instrumento> buscar(String pFiltro, String pValor)
+    {
+        String CMD_BUSCAR;
+        List<Instrumento> lvLista = new ArrayList<>();
+        String lvCriterioBusqueda = obtenerCriterioBusqueda(pFiltro);
+        
+        if(lvCriterioBusqueda.equals("NumeroSerie") || lvCriterioBusqueda.equals("Tipo") ||(pValor.equals("")))
             CMD_BUSCAR = "SELECT * FROM instrumento WHERE "+ lvCriterioBusqueda + " LIKE '%" + pValor + "%';";
         else
             CMD_BUSCAR = "SELECT * FROM instrumento WHERE "+ lvCriterioBusqueda + " LIKE '%" + pValor + "%';";
@@ -206,12 +191,115 @@ public class GestorInstrumentos
         return lvLista;
     }
     
-    public Object[][] obtenerTablaBusqueda(String pFiltro, String pValor)
+    public List<Instrumento> buscarAvanzado(String pTipo, String pMinimo, String pMaximo, String pTolerancia)
     {
-        List<Instrumento> lvInstrumentos = buscar(pFiltro, pValor);
-        Object[][] r = new Object[lvInstrumentos.size()][6];
+        String CMD_BUSCAR = obtenerComandoBusquedaAvanzada(pTipo, pMinimo, pMaximo, pTolerancia);
+        List<Instrumento> lvLista = new ArrayList<>();
+        if(CMD_BUSCAR != "")
+        {
+            try 
+            {
+                try (Connection lvConexion = aBaseDatos.obtenerConexion(BASE_DATOS, USUARIO, CLAVE); Statement lvPaso = lvConexion.createStatement(); ResultSet rs = lvPaso.executeQuery(CMD_BUSCAR)) 
+                {
+                    while (rs.next()) 
+                    {
+                        lvLista.add(new Instrumento(rs.getString("NumeroSerie"), rs.getString("Tipo"), rs.getString("Descripcion"), Integer.parseInt(rs.getString("Minimo")), Integer.parseInt(rs.getString("Maximo")), Integer.parseInt(rs.getString("Tolerancia"))));
+                    }
+                }
+            }
+            catch (SQLException ex) 
+            {
+                System.err.printf("Excepción: '%s'%n", ex.getMessage());
+            }
+        }
+        return lvLista;
+    }
+        
+    private String obtenerComandoBusquedaAvanzada(String pTipo, String pMinimo, String pMaximo, String pTolerancia)
+    {
+        String CMD_BUSCAR = "";
+            if(!"".equals(pTipo) && !"".equals(pMinimo) && !"".equals(pMaximo) && !"".equals(pTolerancia))
+                CMD_BUSCAR = "SELECT * FROM instrumento WHERE Tipo LIKE '%" + pTipo + "%' AND Minimo LIKE '%" + Integer.parseInt(pMinimo) + "%' " + "AND Maximo LIKE '%" + Integer.parseInt(pMaximo) + "%' AND Tolerancia LIKE '%" + Integer.parseInt(pTolerancia) + "%';";
+            else
+                if("".equals(pTipo) && "".equals(pMinimo) && "".equals(pMaximo) && !"".equals(pTolerancia))
+                    CMD_BUSCAR = "SELECT * FROM instrumento WHERE Tolerancia LIKE '%" + Integer.parseInt(pTolerancia) + "%';";
+                else
+                    if(!"".equals(obtenerBusquedaMaximo(pTipo, pMinimo, pMaximo, pTolerancia)))
+                        CMD_BUSCAR = obtenerBusquedaMaximo(pTipo, pMinimo, pMaximo, pTolerancia);
+                    else
+                        if(!"".equals(obtenerBusquedaMinimo(pTipo, pMinimo, pMaximo, pTolerancia)))
+                            CMD_BUSCAR = obtenerBusquedaMinimo(pTipo, pMinimo, pMaximo, pTolerancia);
+                        else
+                            if(!"".equals(obtenerBusquedaTipo(pTipo, pMinimo, pMaximo, pTolerancia)))
+                                CMD_BUSCAR = obtenerBusquedaTipo(pTipo, pMinimo, pMaximo, pTolerancia);
+        return CMD_BUSCAR;
+    }
+    
+    private String obtenerBusquedaTipo(String pTipo, String pMinimo, String pMaximo, String pTolerancia)
+    {
+        String CMD_BUSCAR = "";
+        if(!"".equals(pTipo) && "".equals(pMinimo) && "".equals(pMaximo) && "".equals(pTolerancia))
+            CMD_BUSCAR = "SELECT * FROM instrumento WHERE Tipo LIKE '%" + pTipo + "%';";
+        else
+            if(!"".equals(pTipo) && "".equals(pMinimo) && !"".equals(pMaximo) && !"".equals(pTolerancia))
+                CMD_BUSCAR = "SELECT * FROM instrumento WHERE Tipo LIKE '%" + pTipo + "%' AND Maximo LIKE '%" + Integer.parseInt(pMaximo) + "%' AND Tolerancia LIKE '%" + Integer.parseInt(pTolerancia) + "%';";
+            else
+                if(!"".equals(pTipo) && !"".equals(pMinimo) && "".equals(pMaximo) && !"".equals(pTolerancia))
+                    CMD_BUSCAR = "SELECT * FROM instrumento WHERE Tipo LIKE '%" + pTipo + "%' AND Minimo LIKE '%" + Integer.parseInt(pMinimo) + "%' AND Tolerancia LIKE '%" + Integer.parseInt(pTolerancia) + "%';";
+                else
+                    if(!"".equals(pTipo) && !"".equals(pMinimo) && !"".equals(pMaximo) && "".equals(pTolerancia))
+                        CMD_BUSCAR = "SELECT * FROM instrumento WHERE Tipo LIKE '%" + pTipo + "%' AND Tolerancia LIKE '%" + Integer.parseInt(pTolerancia) + "%';";
+                    else
+                        if(!"".equals(pTipo) && !"".equals(pMinimo) && "".equals(pMaximo) && "".equals(pTolerancia))
+                            CMD_BUSCAR = "SELECT * FROM instrumento WHERE Tipo LIKE '%" + pTipo + "%' AND Minimo LIKE '%" + Integer.parseInt(pMinimo) + "%';";
+                        else
+                            if(!"".equals(pTipo) && "".equals(pMinimo) && !"".equals(pMaximo) && "".equals(pTolerancia))
+                                CMD_BUSCAR = "SELECT * FROM instrumento WHERE Tipo LIKE '%" + pTipo + "%' AND Maximo LIKE '%" + Integer.parseInt(pMaximo) + "%';";
+                            else
+                                if(!"".equals(pTipo) && "".equals(pMinimo) && "".equals(pMaximo) && !"".equals(pTolerancia))
+                                    CMD_BUSCAR = "SELECT * FROM instrumento WHERE Tipo LIKE '%" + pTipo + "%' AND Tolerancia LIKE '%" + Integer.parseInt(pTolerancia) + "%';";
+        return CMD_BUSCAR;
+    }
+    
+    private String obtenerBusquedaMaximo(String pTipo, String pMinimo, String pMaximo, String pTolerancia)
+    {
+        String CMD_BUSCAR ="";
+        //Solo maximo
+        if("".equals(pTipo) && "".equals(pMinimo) && !"".equals(pMaximo) && "".equals(pTolerancia))
+            CMD_BUSCAR = "SELECT * FROM instrumento WHERE Maximo LIKE '%" + Integer.parseInt(pMaximo) + "%';";
+        else
+            //Maximo y Tolerancia
+            if("".equals(pTipo) && "".equals(pMinimo) && !"".equals(pMaximo) && !"".equals(pTolerancia))
+                CMD_BUSCAR = "SELECT * FROM instrumento WHERE Maximo LIKE '%" + Integer.parseInt(pMaximo) + "%' AND Tolerancia LIKE '%" + Integer.parseInt(pTolerancia)+ "%';";
+        return CMD_BUSCAR;
+    }
+    
+    private String obtenerBusquedaMinimo(String pTipo, String pMinimo, String pMaximo, String pTolerancia)
+    {
+        String CMD_BUSCAR ="";
+        //Solo minimo
+        if("".equals(pTipo) && !"".equals(pMinimo) && "".equals(pMaximo) && "".equals(pTolerancia))
+            CMD_BUSCAR = "SELECT * FROM instrumento WHERE Minimo LIKE '%" + Integer.parseInt(pMinimo) + "%';";
+        else
+            //Minimo, Maximo y Tolerancia
+            if("".equals(pTipo) && !"".equals(pMinimo) && !"".equals(pMaximo) && !"".equals(pTolerancia))
+                CMD_BUSCAR = "SELECT * FROM instrumento WHERE Minimo LIKE '%" + Integer.parseInt(pMinimo) + "%' " + "AND Maximo LIKE '%" + Integer.parseInt(pMaximo) + "%' AND Tolerancia LIKE '%" + Integer.parseInt(pTolerancia) + "%';";
+            else
+                //Minimo y Tolerancia
+                if("".equals(pTipo) && !"".equals(pMinimo) && "".equals(pMaximo) && !"".equals(pTolerancia))
+                    CMD_BUSCAR = "SELECT * FROM instrumento WHERE Minimo LIKE '%" + Integer.parseInt(pMinimo) + "%' AND Tolerancia LIKE '%" + Integer.parseInt(pTolerancia)+ "%';";
+                else
+                    //Minimo y Maximo
+                    if("".equals(pTipo) && !"".equals(pMinimo) && !"".equals(pMaximo) && "".equals(pTolerancia))
+                        CMD_BUSCAR = "SELECT * FROM instrumento WHERE Minimo LIKE '%" + Integer.parseInt(pMinimo) + "%' AND Maximo LIKE '%" + Integer.parseInt(pMaximo)+ "%';";
+        return CMD_BUSCAR;
+    }
+    
+    public Object[][] obtenerTablaX(List<Instrumento> pInstrumentos)
+    {
+        Object[][] r = new Object[pInstrumentos.size()][6];
         int lvIndice = 0;
-        for (Instrumento lvInstrumento : lvInstrumentos)
+        for (Instrumento lvInstrumento : pInstrumentos)
         {
             r[lvIndice][0] = lvInstrumento.obtenerNumeroSerie();
             r[lvIndice][1] = lvInstrumento.obtenerTipo();
@@ -222,6 +310,24 @@ public class GestorInstrumentos
             lvIndice++;
         }
         return r;
+    }
+    
+    public Object[][] obtenerTabla()
+    {
+        List<Instrumento> lvInstrumentos = listaInstrumentos();
+        return obtenerTablaX(lvInstrumentos);
+    }
+    
+    public Object[][] obtenerTablaBusqueda(String pFiltro, String pValor)
+    {
+        List<Instrumento> lvInstrumentos = buscar(pFiltro, pValor);
+        return obtenerTablaX(lvInstrumentos);
+    }
+    
+    public Object[][] obtenerTablaBusquedaAvanzada(String pTipo, String pMinimo, String pMaximo, String pTolerancia)
+    {
+        List<Instrumento> lvInstrumentos = buscarAvanzado(pTipo, pMinimo, pMaximo, pTolerancia);
+        return obtenerTablaX(lvInstrumentos);
     }
     
     private static final String BASE_DATOS = "instrumentos";

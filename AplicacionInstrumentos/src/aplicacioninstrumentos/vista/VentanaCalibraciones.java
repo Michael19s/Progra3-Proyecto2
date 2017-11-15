@@ -1,34 +1,44 @@
 package aplicacioninstrumentos.vista;
 
+import aplicacioninstrumentos.Control.ControlAplicacion;
 import aplicacioninstrumentos.modelo.Calibracion;
 import aplicacioninstrumentos.modelo.GestorCalibracion;
+import aplicacioninstrumentos.vista.VentanaInclusionCalibracion.modoCalibracion;
+import datechooser.beans.DateChooserCombo;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.sql.Date;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 
-public class VentanaCalibraciones extends JFrame
+public class VentanaCalibraciones extends JFrame implements Observer
 {
-       public VentanaCalibraciones() 
+       public VentanaCalibraciones(ControlAplicacion pNuevoGestor) 
     {
         super("Mantenimiento de calibraciones");
+        aGestorPrincipal = pNuevoGestor;
         configurar();
     }
     
@@ -37,9 +47,19 @@ public class VentanaCalibraciones extends JFrame
         ajustarComponentes(getContentPane());
         setResizable(false);
         setSize(920, 400);
-        setMinimumSize(new Dimension(400, 300));
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        
+        addWindowListener(new WindowAdapter() 
+        {
+            @Override
+            public void windowClosing(WindowEvent e) 
+            {
+                System.out.println("Eliminando observador..");
+                aGestorPrincipal.eliminarRegistro(VentanaCalibraciones.this);
+                dispose();
+            }
+        });
     }
     
     private void ajustarComponentes(Container c)
@@ -155,16 +175,16 @@ public class VentanaCalibraciones extends JFrame
         gbc8.ipadx = 156;
         gbc8.anchor = GridBagConstraints.NORTHWEST;
         gbc8.insets = new Insets(6, 2, 0, 0);
-        pnlBusqueda.add(txtBusqTipo = new JTextField(), gbc8);
+        pnlBusqueda.add(txtBusqInstrumento = new JTextField(), gbc8);
         
         GridBagConstraints gbc9 = new GridBagConstraints();
         gbc9.gridx = 7;
         gbc9.gridy = 6;
         gbc9.gridwidth = 14;
-        gbc9.ipadx = 186;
-        gbc9.anchor = GridBagConstraints.NORTHWEST;
-        gbc9.insets = new Insets(4, 2, 0, 0);
-        pnlBusqueda.add(txtBusqMinimo = new JTextField(), gbc9);
+        gbc9.ipadx = 137;
+        gbc9.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gbc9.insets = new java.awt.Insets(3, 2, 0, 0);
+        pnlBusqueda.add(cmbFecha = new DateChooserCombo(), gbc9);
 
         GridBagConstraints gbc10 = new GridBagConstraints();
         gbc10.gridx = 3;
@@ -181,7 +201,7 @@ public class VentanaCalibraciones extends JFrame
         gbc11.ipadx = 108;
         gbc11.anchor = GridBagConstraints.NORTHWEST;
         gbc11.insets = new Insets(4, 2, 0, 0);
-        pnlBusqueda.add(jTextField1 = new JTextField(), gbc11);
+        pnlBusqueda.add(txtBusqMediciones = new JTextField(), gbc11);
 
         GridBagConstraints gbcBusqueda = new GridBagConstraints();
         gbcBusqueda.gridx = 1;
@@ -190,7 +210,122 @@ public class VentanaCalibraciones extends JFrame
         gbcBusqueda.insets = new Insets(6, 10, 0, 0);
         getContentPane().add(pnlBusqueda, gbcBusqueda);
 
-         try 
+        mostrarTabla(c);
+        
+        txtBusqueda.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                try 
+                {
+                    tblBusqueda = new JTable(GestorCalibracion.obtenerInstancia().obtenerTablaBusqueda((String)cmbBusqueda.getSelectedItem(), txtBusqueda.getText()), Calibracion.obtenerDescripcion());
+                }
+                catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+                {
+                    System.err.printf(ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                scpTabla.setViewportView(tblBusqueda);
+            }
+        });
+        
+        cbxInstrumento.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(cbxInstrumento.isSelected())
+                    busquedaAvanzada();
+                else
+                    mostrarTabla(c);
+            }
+        });
+        
+        cbxFecha.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(cbxFecha.isSelected())
+                    busquedaAvanzada();
+                else
+                    mostrarTabla(c);
+            }
+        });
+        
+        cbxMediciones.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(cbxMediciones.isSelected())
+                    busquedaAvanzada();
+                else
+                    mostrarTabla(c);
+            }
+        });
+        
+        txtBusqInstrumento.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e) 
+            {
+                if(cbxInstrumento.isSelected())
+                    busquedaAvanzada();
+            }
+        });
+        
+        txtBusqMediciones.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e) 
+            {
+                if(cbxMediciones.isSelected())
+                    busquedaAvanzada();
+            }
+        });
+            
+        btnAgregar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                agregar();
+            }
+        });
+        
+        btnEliminar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                eliminar();
+            }
+        });
+        
+        btnModificar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                modificar();
+            }
+        });
+        
+        btnClonar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                clonar();
+            }
+        });
+    }
+    
+    private void mostrarTabla(Container c)
+    {
+        try 
         {
             tblCalibraciones = new JTable(GestorCalibracion.obtenerInstancia().obtenerTabla(), Calibracion.obtenerDescripcion());
         }
@@ -213,30 +348,88 @@ public class VentanaCalibraciones extends JFrame
         gbcTabla.weighty = 1.0;
         gbcTabla.insets = new Insets(6, 10, 11, 10);
         getContentPane().add(scpTabla, gbcTabla);
-        
-        txtBusqueda.addKeyListener(new KeyAdapter() 
-        {
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                try 
-                {
-                    tblBusqueda = new JTable(GestorCalibracion.obtenerInstancia().obtenerTablaBusqueda((String)cmbBusqueda.getSelectedItem(), txtBusqueda.getText()), Calibracion.obtenerDescripcion());
-                }
-                catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
-                {
-                    System.err.printf(ex.getMessage());
-                    JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                scpTabla.setViewportView(tblBusqueda);
-            }
-        });
     }
     
-    public void init()
+    private void busquedaAvanzada()
     {
+            try 
+            {
+                Date lvFechaReal = new Date(cmbFecha.getSelectedDate().getTimeInMillis());
+                tblBusqueda = new JTable(GestorCalibracion.obtenerInstancia().obtenerTablaBusquedaAvanzada(txtBusqInstrumento.getText(), lvFechaReal, txtBusqMediciones.getText()), Calibracion.obtenerDescripcion());
+            }
+            catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+            {
+                System.err.printf(ex.getMessage());
+                JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            scpTabla.setViewportView(tblBusqueda); 
+    }
+    
+    private void agregar()
+    {
+        aGestorPrincipal.mostrarVentanaInclusionCalibracion(modoCalibracion.agregar, VentanaCalibraciones.this);
+    }
+    
+    private void eliminar()
+    {
+        int lvFilaSeleccionada = tblCalibraciones.getSelectedRow();
+        if(lvFilaSeleccionada == -1)
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un registro..", "Advertencia",JOptionPane.WARNING_MESSAGE);
+        else
+        {
+            Object lvNumero = tblCalibraciones.getValueAt(lvFilaSeleccionada, 0);
+            aGestorPrincipal.eliminarCalibracion((int)lvNumero);
+        }
+    }
+    
+    private void modificar()
+    {
+        int lvFilaSeleccionada = tblCalibraciones.getSelectedRow();
+        if(lvFilaSeleccionada == -1)
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un registro..", "Advertencia",JOptionPane.WARNING_MESSAGE);
+        else
+        {
+            Object lvNumero = tblCalibraciones.getValueAt(lvFilaSeleccionada, 0);
+            Calibracion lvCalibracion = aGestorPrincipal.recuperarCalibracion((int)lvNumero);
+            aGestorPrincipal.mostrarVentanaInclusionCalibracion(VentanaInclusionCalibracion.modoCalibracion.modificar, VentanaCalibraciones.this,(int)lvNumero ,lvCalibracion.obtenerInstrumento(), lvCalibracion.obtenerFecha(), lvCalibracion.obtenerMediciones());
+        }
+    }
+    
+    private void clonar()
+    {
+        int lvFilaSeleccionada = tblCalibraciones.getSelectedRow();
+        if(lvFilaSeleccionada == -1)
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un registro..", "Advertencia",JOptionPane.WARNING_MESSAGE);
+        else
+        {
+            Object lvNumero = tblCalibraciones.getValueAt(lvFilaSeleccionada, 0);
+            Calibracion lvCalibracion = aGestorPrincipal.recuperarCalibracion((int)lvNumero);
+            aGestorPrincipal.mostrarVentanaInclusionCalibracion(VentanaInclusionCalibracion.modoCalibracion.clonar, VentanaCalibraciones.this, (int)lvNumero, lvCalibracion.obtenerInstrumento(), lvCalibracion.obtenerFecha(), lvCalibracion.obtenerMediciones());
+        }
+    }
+    
+    public void init(JFrame pBase)
+    {
+        setLocationRelativeTo(pBase);
         setVisible(true);
     }
+    
+    @Override
+    public void update(Observable pReferencia, Object e)
+    {
+        try 
+        {
+            tblCalibraciones = new JTable(GestorCalibracion.obtenerInstancia().obtenerTabla(), Calibracion.obtenerDescripcion());
+        }
+        catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+        {
+            System.err.printf(ex.getMessage());
+            JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        scpTabla.setViewportView(tblCalibraciones);
+    }
+    
+    private static ControlAplicacion aGestorPrincipal;
     
     private JButton btnAgregar;
     private JButton btnBuscar;
@@ -251,7 +444,6 @@ public class VentanaCalibraciones extends JFrame
     
     private JComboBox<String> cmbBusqueda;
     
-    private JPanel jPanel1;
     private JPanel pnlBotones;
     private JPanel pnlBusqueda;
     
@@ -264,8 +456,10 @@ public class VentanaCalibraciones extends JFrame
     private JTable tblCalibraciones;
     private JTable tblBusqueda;
     
-    private JTextField txtBusqMinimo;
-    private JTextField txtBusqTipo;
-    private JTextField jTextField1;
+    private JTextField txtBusqInstrumento;
+    private JTextField txtBusqMediciones;
     private JTextField txtBusqueda;
+    
+    private DateChooserCombo cmbFecha;
+
 }

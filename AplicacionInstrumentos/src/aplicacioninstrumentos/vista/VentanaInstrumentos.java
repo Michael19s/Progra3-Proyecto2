@@ -1,21 +1,28 @@
 package aplicacioninstrumentos.vista;
 
+import aplicacioninstrumentos.Control.ControlAplicacion;
 import aplicacioninstrumentos.modelo.GestorInstrumentos;
+import aplicacioninstrumentos.modelo.GestorTipoInstrumentos;
 import aplicacioninstrumentos.modelo.Instrumento;
+import aplicacioninstrumentos.modelo.TipoInstrumento;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -23,11 +30,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
-public class VentanaInstrumentos extends JFrame
+public class VentanaInstrumentos extends JFrame implements Observer
 {
-    public VentanaInstrumentos() 
+    public VentanaInstrumentos(ControlAplicacion pNuevoGestor) 
     {
         super("Mantenimiento de Instrumentos");
+        aGestorPrincipal = pNuevoGestor;
         configurar();
     }
     
@@ -36,9 +44,19 @@ public class VentanaInstrumentos extends JFrame
         ajustarComponentes(getContentPane());
         setResizable(false);
         setSize(920, 400);
-        setMinimumSize(new Dimension(400, 300));
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        
+        addWindowListener(new WindowAdapter() 
+        {
+            @Override
+            public void windowClosing(WindowEvent e) 
+            {
+                System.out.println("Eliminando observador..");
+                aGestorPrincipal.eliminarRegistro(VentanaInstrumentos.this);
+                dispose();
+            }
+        });
     }
     
     private void ajustarComponentes(Container c)
@@ -52,9 +70,9 @@ public class VentanaInstrumentos extends JFrame
         pnlBusqueda = new JPanel();
         
         scpTabla = new JScrollPane();
-        tblInstrumentos = new JTable();
 
         c.setLayout(new GridBagLayout());
+
         GridBagConstraints gbcCentral =  new GridBagConstraints();
 
         //Panel de Botones
@@ -179,7 +197,8 @@ public class VentanaInstrumentos extends JFrame
         gbc13.ipadx = 91;
         gbc13.insets = new Insets(4, 2, 0, 10);
         pnlBusqueda.add(txtBusqTolerancia = new JTextField(), gbc13);
-
+        
+        
         gbcCentral.gridx = 0;
         gbcCentral.gridy = 1;
         gbcCentral.gridwidth = 2;
@@ -187,6 +206,158 @@ public class VentanaInstrumentos extends JFrame
         gbcCentral.insets = new Insets(6, 10, 0, 10);
         c.add(pnlBusqueda, gbcCentral);
 
+        mostrarTabla(c);
+        
+        txtBusqueda.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                try 
+                {
+                    tblBusqueda = new JTable(GestorInstrumentos.obtenerInstancia().obtenerTablaBusqueda((String)cmbBusqueda.getSelectedItem(), txtBusqueda.getText()), Instrumento.obtenerDescripcionTbl());
+                }
+                catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+                {
+                    System.err.printf(ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                scpTabla.setViewportView(tblBusqueda);
+            }
+        });
+        
+        txtBusqTipo.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(cbxTipo.isSelected())
+                    busquedaAvanzada();
+            }
+        });
+        
+        txtBusqMinimo.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(cbxMinimo.isSelected())
+                    busquedaAvanzada();
+            }
+        });
+        
+        txtBusqMaximo.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(cbxMaximo.isSelected())
+                    busquedaAvanzada();
+            }
+        });
+        
+        txtBusqTolerancia.addKeyListener(new KeyAdapter() 
+        {
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(cbxTolerancia.isSelected())
+                    busquedaAvanzada();
+            }
+        });
+
+        cbxTipo.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(cbxTipo.isSelected())
+                    busquedaAvanzada();
+                else
+                    mostrarTabla(c);
+            }
+        });
+             
+        cbxMinimo.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(cbxMinimo.isSelected())
+                    busquedaAvanzada();
+                else
+                    mostrarTabla(c);
+            }
+        });
+        
+        cbxMaximo.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(cbxMaximo.isSelected())
+                    busquedaAvanzada();
+                else
+                    mostrarTabla(c);
+            }
+        });
+        
+        cbxTolerancia.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {                
+                if(cbxTolerancia.isSelected())
+                    busquedaAvanzada();
+                else
+                    mostrarTabla(c);
+            }
+        });
+       
+        btnAgregar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                agregar();
+            }
+        });
+        
+        btnEliminar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                eliminar();
+            }
+        });
+        
+        btnModificar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                modificar();
+            }
+        });
+        
+        btnClonar.addMouseListener(new MouseAdapter() 
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                clonar();
+            }
+        });
+        
+    }
+    
+    public void mostrarTabla(Container c)
+    {
+        tblInstrumentos = new JTable();
+
+        GridBagConstraints gbcCentral =  new GridBagConstraints();
+        
         try 
         {
             tblInstrumentos = new JTable(GestorInstrumentos.obtenerInstancia().obtenerTabla(), Instrumento.obtenerDescripcionTbl());
@@ -209,30 +380,87 @@ public class VentanaInstrumentos extends JFrame
         gbcCentral.weighty = 1.0;
         gbcCentral.insets = new Insets(6, 10, 11, 10);
         c.add(scpTabla, gbcCentral);
-        
-        txtBusqueda.addKeyListener(new KeyAdapter() 
-        {
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                try 
-                {
-                    tblBusqueda = new JTable(GestorInstrumentos.obtenerInstancia().obtenerTablaBusqueda((String)cmbBusqueda.getSelectedItem(), txtBusqueda.getText()), Instrumento.obtenerDescripcionTbl());
-                }
-                catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
-                {
-                    System.err.printf(ex.getMessage());
-                    JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                scpTabla.setViewportView(tblBusqueda);
-            }
-        });
     }
     
-    public void init()
+    private void busquedaAvanzada()
     {
+            try 
+            {
+                tblBusqueda = new JTable(GestorInstrumentos.obtenerInstancia().obtenerTablaBusquedaAvanzada(txtBusqTipo.getText(), txtBusqMinimo.getText(), txtBusqMaximo.getText(), txtBusqTolerancia.getText()), Instrumento.obtenerDescripcionTbl());
+            }
+            catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+            {
+                System.err.printf(ex.getMessage());
+                JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            scpTabla.setViewportView(tblBusqueda); 
+    }
+    
+    private void agregar()
+    {
+        aGestorPrincipal.mostrarVentanaInclusionInstrumento(VentanaInclusionInstrumento.modoInstrumento.agregar, VentanaInstrumentos.this);
+    }
+    
+    private void eliminar()
+    {
+        int lvFilaSeleccionada = tblInstrumentos.getSelectedRow();
+        if(lvFilaSeleccionada == -1)
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un registro..", "Advertencia",JOptionPane.WARNING_MESSAGE);
+        else
+        {
+            Object lvNumeroSerie = tblInstrumentos.getValueAt(lvFilaSeleccionada, 0);
+            aGestorPrincipal.eliminarInstrumento((String)lvNumeroSerie);
+        }
+    }
+    
+    private void modificar()
+    {
+        int lvFilaSeleccionada = tblInstrumentos.getSelectedRow();
+        if(lvFilaSeleccionada == -1)
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un registro..", "Advertencia",JOptionPane.WARNING_MESSAGE);
+        else
+        {
+            Object lvNumeroSerie = tblInstrumentos.getValueAt(lvFilaSeleccionada, 0);
+            Instrumento lvInstrumento = aGestorPrincipal.recuperarInstrumento((String)lvNumeroSerie);
+            aGestorPrincipal.mostrarVentanaInclusionInstrumento(VentanaInclusionInstrumento.modoInstrumento.modificar, VentanaInstrumentos.this, (String)lvNumeroSerie, lvInstrumento.obtenerTipo(), lvInstrumento.obtenerDescripcion(), lvInstrumento.obtenerMinimo(), lvInstrumento.obtenerMaximo(), lvInstrumento.obtenerTolerancia());
+        }
+    }
+    
+    private void clonar()
+    {
+         int lvFilaSeleccionada = tblInstrumentos.getSelectedRow();
+        if(lvFilaSeleccionada == -1)
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un registro..", "Advertencia",JOptionPane.WARNING_MESSAGE);
+        else
+        {
+            Object lvNumeroSerie = tblInstrumentos.getValueAt(lvFilaSeleccionada, 0);
+            Instrumento lvInstrumento = aGestorPrincipal.recuperarInstrumento((String)lvNumeroSerie);
+            aGestorPrincipal.mostrarVentanaInclusionInstrumento(VentanaInclusionInstrumento.modoInstrumento.clonar, VentanaInstrumentos.this, (String)lvNumeroSerie, lvInstrumento.obtenerTipo(), lvInstrumento.obtenerDescripcion(), lvInstrumento.obtenerMinimo(), lvInstrumento.obtenerMaximo(), lvInstrumento.obtenerTolerancia());
+        }
+    }
+    
+    public void init(JFrame pBase)
+    {
+        setLocationRelativeTo(pBase);
         setVisible(true);
     }
+    
+    @Override
+    public void update(Observable pReferencia, Object e)
+    {
+        try 
+        {
+            tblInstrumentos = new JTable(GestorInstrumentos.obtenerInstancia().obtenerTabla(), Instrumento.obtenerDescripcionTbl());
+        }
+        catch (InstantiationException | ClassNotFoundException | IllegalAccessException ex) 
+        {
+            System.err.printf(ex.getMessage());
+            JOptionPane.showMessageDialog(null, "No se pudo cargar la tabla", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        scpTabla.setViewportView(tblInstrumentos);
+    }
+    
+    private static ControlAplicacion aGestorPrincipal;
     
     private JButton btnAgregar;
     private JButton btnBuscar;

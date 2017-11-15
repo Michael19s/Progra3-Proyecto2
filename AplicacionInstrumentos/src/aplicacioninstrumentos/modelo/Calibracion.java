@@ -4,7 +4,7 @@ import java.sql.Date;
 
 public class Calibracion 
 {
-    public Calibracion(int pNumeroCalibracion, String pInstrumento, Date pFecha, String pMediciones) 
+    public Calibracion(int pNumeroCalibracion, String pInstrumento, Date pFecha, int pMediciones) 
     {
         this.aNumeroCalibracion = pNumeroCalibracion;
         this.aInstrumento = pInstrumento;
@@ -41,12 +41,12 @@ public class Calibracion
         this.aFecha = pFecha;
     }
 
-    public String obtenerMediciones() 
+    public int obtenerMediciones() 
     {
         return aMediciones;
     }
 
-    public void establecerMediciones(String pMediciones)
+    public void establecerMediciones(int pMediciones)
     {
         this.aMediciones = pMediciones;
     }
@@ -62,5 +62,5 @@ public class Calibracion
     int aNumeroCalibracion;
     String aInstrumento;
     Date aFecha;
-    String aMediciones;
+    int aMediciones;
 }
